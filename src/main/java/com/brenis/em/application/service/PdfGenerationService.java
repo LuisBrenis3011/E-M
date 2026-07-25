@@ -1,0 +1,171 @@
+package com.brenis.em.application.service;
+
+import com.brenis.em.domain.contrato.Contrato;
+import com.brenis.em.domain.contrato.DetalleContrato;
+import com.brenis.em.domain.documento.ContratoDocumento;
+import com.brenis.em.domain.plantilla.PlantillaContrato;
+import com.brenis.em.domain.proveedor.Proveedor;
+import com.brenis.em.domain.repository.ContratoDocumentoRepository;
+import com.brenis.em.domain.repository.ContratoRepository;
+import com.brenis.em.domain.repository.DetalleContratoRepository;
+import com.brenis.em.domain.repository.PlantillaContratoRepository;
+import com.brenis.em.infrastructure.exception.BusinessException;
+import com.brenis.em.infrastructure.exception.ResourceNotFoundException;
+import com.brenis.em.infrastructure.pdf.HtmlToPdfConverter;
+import com.brenis.em.infrastructure.storage.FileStorageService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+
+@Service
+@Transactional
+public class PdfGenerationService {
+
+    private final ContratoRepository contratoRepository;
+    private final DetalleContratoRepository detalleContratoRepository;
+    private final PlantillaContratoRepository plantillaRepository;
+    private final ContratoDocumentoRepository documentoRepository;
+    private final HtmlToPdfConverter htmlToPdfConverter;
+    private final FileStorageService fileStorageService;
+
+    public PdfGenerationService(ContratoRepository contratoRepository,
+                                DetalleContratoRepository detalleContratoRepository,
+                                PlantillaContratoRepository plantillaRepository,
+                                ContratoDocumentoRepository documentoRepository,
+                                HtmlToPdfConverter htmlToPdfConverter,
+                                FileStorageService fileStorageService) {
+        this.contratoRepository = contratoRepository;
+        this.detalleContratoRepository = detalleContratoRepository;
+        this.plantillaRepository = plantillaRepository;
+        this.documentoRepository = documentoRepository;
+        this.htmlToPdfConverter = htmlToPdfConverter;
+        this.fileStorageService = fileStorageService;
+    }
+
+    public ContratoDocumento generarContrato(Long contratoId, Long generadoPor) {
+        Contrato contrato = contratoRepository.findById(contratoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contrato", contratoId));
+
+        PlantillaContrato plantilla = plantillaRepository
+                .findByProveedorIdAndEsDefaultTrue(contrato.getProveedor().getId())
+                .orElseThrow(() -> new BusinessException(
+                        "No hay plantilla por defecto configurada. Configure una plantilla primero."));
+
+        String html = plantilla.getContenidoHtml();
+        html = reemplazarPlaceholders(html, contrato);
+
+        byte[] pdfBytes = htmlToPdfConverter.convertToPdf(html);
+
+        String nombreArchivo = "contrato_" + contratoId + ".pdf";
+        String urlPdf = fileStorageService.storePdf(pdfBytes, nombreArchivo);
+
+        int version = documentoRepository.findByContratoIdOrderByVersionDesc(contratoId)
+                .stream().findFirst()
+                .map(d -> d.getVersion() + 1)
+                .orElse(1);
+
+        ContratoDocumento documento = ContratoDocumento.builder()
+                .contrato(contrato)
+                .plantilla(plantilla)
+                .contenidoHtml(html)
+                .urlPdf(urlPdf)
+                .version(version)
+                .fechaGeneracion(LocalDateTime.now())
+                .build();
+
+        return documentoRepository.save(documento);
+    }
+
+    private String reemplazarPlaceholders(String html, Contrato contrato) {
+        Proveedor proveedor = contrato.getProveedor();
+        var evento = contrato.getEvento();
+        var cliente = evento.getCliente();
+        var tematica = evento.getTematica();
+
+        List<DetalleContrato> detalles = detalleContratoRepository
+                .findByContratoIdOrderByOrden(contrato.getId());
+
+        html = html.replace("{{PROVEEDOR_NOMBRE}}", proveedor.getNombreEmpresa());
+        html = html.replace("{{PROVEEDOR_RUC}}", proveedor.getRuc());
+        html = html.replace("{{PROVEEDOR_GERENTE}}", proveedor.getNombreGerente());
+
+        html = html.replace("{{CLIENTE_NOMBRE}}", cliente.getNombreCompleto());
+        html = html.replace("{{CLIENTE_DNI}}", cliente.getDni());
+        html = html.replace("{{CLIENTE_TELEFONO}}", cliente.getTelefono());
+        html = html.replace("{{CLIENTE_DIRECCION}}",
+                cliente.getDireccion() != null ? cliente.getDireccion() : "");
+        html = html.replace("{{CLIENTE_REFERENCIA}}",
+                cliente.getReferencia() != null ? cliente.getReferencia() : "");
+
+        html = html.replace("{{EVENTO_TIPO}}",
+                evento.getTipoEvento() != null ? evento.getTipoEvento() : "");
+        html = html.replace("{{EVENTO_TEMATICA}}",
+                tematica != null ? tematica.getNombre() : "");
+        html = html.replace("{{EVENTO_FECHA}}", formatFecha(evento.getFechaEvento().atStartOfDay()));
+        html = html.replace("{{EVENTO_HORA_INICIO}}", evento.getHoraInicio().toString());
+        html = html.replace("{{EVENTO_HORA_FIN}}",
+                evento.getHoraFinEstimada() != null ? evento.getHoraFinEstimada().toString() : "");
+        html = html.replace("{{EVENTO_NOMBRE_CUMPLEANERO}}",
+                evento.getNombreCumpleanero() != null ? evento.getNombreCumpleanero() : "");
+        html = html.replace("{{EVENTO_EDAD_CUMPLEANERO}}",
+                evento.getEdadCumpleanero() != null ? evento.getEdadCumpleanero() + " años" : "");
+
+        html = html.replace("{{CONTRATO_MONTO_TOTAL}}",
+                "S/." + String.format("%.2f", contrato.getMontoTotal()));
+        html = html.replace("{{CONTRATO_MOVILIDAD}}",
+                "S/." + String.format("%.2f", contrato.getCostoMovilidad()));
+        html = html.replace("{{CONTRATO_MONTO_ADELANTO}}",
+                "S/." + String.format("%.2f", contrato.getMontoAdelanto()));
+        html = html.replace("{{CONTRATO_MONTO_PENDIENTE}}",
+                "S/." + String.format("%.2f", contrato.getMontoPendiente()));
+        html = html.replace("{{CONTRATO_DURACION}}",
+                contrato.getDuracion() != null ? contrato.getDuracion() : "");
+        html = html.replace("{{CONTRATO_DETALLE_ITEMS}}", buildTablaItems(detalles, false));
+        html = html.replace("{{CONTRATO_OBSEQUIOS}}", buildTablaItems(detalles, true));
+        html = html.replace("{{CONTRATO_TERMINOS}}",
+                proveedor.getTerminosCondiciones() != null
+                        ? proveedor.getTerminosCondiciones() : "");
+        html = html.replace("{{FECHA_EMISION}}", formatFecha(LocalDateTime.now()));
+
+        return html;
+    }
+
+    private String buildTablaItems(List<DetalleContrato> detalles, boolean obsequios) {
+        List<DetalleContrato> filtrados = detalles.stream()
+                .filter(d -> d.getEsObsequio().equals(obsequios))
+                .toList();
+
+        if (filtrados.isEmpty()) return "";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<table style='width:100%; border-collapse:collapse;'>");
+        sb.append("<tr><th>Item</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>");
+
+        for (DetalleContrato d : filtrados) {
+            sb.append("<tr>");
+            sb.append("<td>").append(d.getInventario().getNombre()).append("</td>");
+            sb.append("<td>").append(d.getCantidad()).append("</td>");
+            sb.append("<td>S/.").append(String.format("%.2f", d.getPrecioUnitario())).append("</td>");
+            sb.append("<td>S/.").append(String.format("%.2f", d.getSubtotal())).append("</td>");
+            sb.append("</tr>");
+        }
+        sb.append("</table>");
+
+        return sb.toString();
+    }
+
+    private String formatFecha(LocalDateTime fecha) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
+                "d 'de' MMMM 'del' yyyy", Locale.of("es", "PE"));
+        return fecha.format(formatter).toUpperCase();
+    }
+
+    public List<ContratoDocumento> getDocumentosByContrato(Long contratoId) {
+        return documentoRepository.findByContratoIdOrderByVersionDesc(contratoId);
+    }
+}
