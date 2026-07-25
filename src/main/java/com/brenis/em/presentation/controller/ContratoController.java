@@ -6,17 +6,15 @@ import com.brenis.em.application.dto.response.ContratoResponse;
 import com.brenis.em.application.facade.ContratoFacade;
 import com.brenis.em.domain.enums.EstadoContrato;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.util.PageUtils;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/contratos")
@@ -49,11 +47,9 @@ public class ContratoController {
 
     @GetMapping
     public ResponseEntity<Page<ContratoResponse>> findAll(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            Pageable pageable) {
-        List<ContratoResponse> all = contratoFacade.findAllByProveedor(
-                userDetails.getProveedorId());
-        return ResponseEntity.ok(toPage(all, pageable));
+            @AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable) {
+        return ResponseEntity.ok(PageUtils.toPage(
+                contratoFacade.findAllByProveedor(userDetails.getProveedorId()), pageable));
     }
 
     @PostMapping("/{contratoId}/detalles")
@@ -70,16 +66,8 @@ public class ContratoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<ContratoResponse> cambiarEstado(
-            @PathVariable Long id,
-            @RequestParam EstadoContrato estado) {
+    public ResponseEntity<ContratoResponse> cambiarEstado(@PathVariable Long id,
+                                                           @RequestParam EstadoContrato estado) {
         return ResponseEntity.ok(contratoFacade.cambiarEstado(id, estado));
-    }
-
-    private <T> Page<T> toPage(List<T> list, Pageable pageable) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), list.size());
-        if (start > list.size()) return new PageImpl<>(List.of(), pageable, list.size());
-        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

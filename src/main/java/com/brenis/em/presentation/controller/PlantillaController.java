@@ -4,14 +4,15 @@ import com.brenis.em.application.dto.request.PlantillaRequest;
 import com.brenis.em.application.dto.response.PlantillaResponse;
 import com.brenis.em.application.facade.PlantillaFacade;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.util.PageUtils;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/plantillas")
@@ -33,9 +34,8 @@ public class PlantillaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlantillaResponse> update(
-            @PathVariable Long id,
-            @Valid @RequestBody PlantillaRequest request) {
+    public ResponseEntity<PlantillaResponse> update(@PathVariable Long id,
+                                                     @Valid @RequestBody PlantillaRequest request) {
         return ResponseEntity.ok(plantillaFacade.update(id, request));
     }
 
@@ -45,9 +45,10 @@ public class PlantillaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PlantillaResponse>> findAll(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(plantillaFacade.findAllByProveedor(userDetails.getProveedorId()));
+    public ResponseEntity<Page<PlantillaResponse>> findAll(
+            @AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable) {
+        return ResponseEntity.ok(PageUtils.toPage(
+                plantillaFacade.findAllByProveedor(userDetails.getProveedorId()), pageable));
     }
 
     @PatchMapping("/{id}/deactivate")

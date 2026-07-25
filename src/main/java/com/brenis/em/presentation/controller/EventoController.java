@@ -5,9 +5,9 @@ import com.brenis.em.application.dto.response.EventoResponse;
 import com.brenis.em.application.facade.EventoFacade;
 import com.brenis.em.domain.enums.EstadoEvento;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.util.PageUtils;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -52,8 +52,8 @@ public class EventoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
             Pageable pageable) {
-        List<EventoResponse> all = eventoFacade.findCalendario(inicio, fin);
-        return ResponseEntity.ok(toPage(all, pageable));
+        return ResponseEntity.ok(PageUtils.toPage(
+                eventoFacade.findCalendario(inicio, fin), pageable));
     }
 
     @GetMapping("/cliente/{clienteId}")
@@ -62,9 +62,8 @@ public class EventoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<EventoResponse> cambiarEstado(
-            @PathVariable Long id,
-            @RequestParam EstadoEvento estado) {
+    public ResponseEntity<EventoResponse> cambiarEstado(@PathVariable Long id,
+                                                         @RequestParam EstadoEvento estado) {
         return ResponseEntity.ok(eventoFacade.cambiarEstado(id, estado));
     }
 
@@ -72,12 +71,5 @@ public class EventoController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         eventoFacade.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private <T> Page<T> toPage(List<T> list, Pageable pageable) {
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), list.size());
-        if (start > list.size()) return new PageImpl<>(List.of(), pageable, list.size());
-        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

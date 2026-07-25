@@ -7,6 +7,7 @@ import com.brenis.em.application.service.IClienteService;
 import com.brenis.em.domain.cliente.Cliente;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -42,6 +43,12 @@ public class ClienteFacade {
 
     public List<ClienteResponse> search(Long proveedorId, String query) {
         return clienteMapper.toResponseList(clienteService.search(proveedorId, query));
+    }
+
+    public List<ClienteResponse> searchByDni(Long proveedorId, String dni) {
+        return clienteService.findByDni(proveedorId, dni)
+                .map(c -> Collections.singletonList(clienteMapper.toResponse(c)))
+                .orElse(Collections.emptyList());
     }
 
     public void deleteById(Long id) {

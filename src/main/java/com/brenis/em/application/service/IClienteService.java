@@ -16,5 +16,7 @@ public interface IClienteService {
 
     List<Cliente> search(Long proveedorId, String query);
 
+    java.util.Optional<Cliente> findByDni(Long proveedorId, String dni);
+
     void deleteById(Long id);
 }

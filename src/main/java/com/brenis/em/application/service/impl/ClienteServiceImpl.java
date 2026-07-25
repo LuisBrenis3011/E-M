@@ -68,6 +68,11 @@ public class ClienteServiceImpl implements IClienteService {
     }
 
     @Override
+    public java.util.Optional<Cliente> findByDni(Long proveedorId, String dni) {
+        return clienteRepository.findByDniAndProveedorId(dni, proveedorId);
+    }
+
+    @Override
     public void deleteById(Long id) {
         if (!clienteRepository.existsById(id)) {
             throw new ResourceNotFoundException("Cliente", id);

@@ -4,14 +4,15 @@ import com.brenis.em.application.dto.request.PaqueteRequest;
 import com.brenis.em.application.dto.response.PaqueteResponse;
 import com.brenis.em.application.facade.PaqueteFacade;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.util.PageUtils;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/paquetes")
@@ -33,9 +34,8 @@ public class PaqueteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PaqueteResponse> update(
-            @PathVariable Long id,
-            @Valid @RequestBody PaqueteRequest request) {
+    public ResponseEntity<PaqueteResponse> update(@PathVariable Long id,
+                                                   @Valid @RequestBody PaqueteRequest request) {
         return ResponseEntity.ok(paqueteFacade.update(id, request));
     }
 
@@ -45,13 +45,14 @@ public class PaqueteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PaqueteResponse>> findAll(
+    public ResponseEntity<Page<PaqueteResponse>> findAll(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(required = false) Long categoriaId) {
-        if (categoriaId != null) {
-            return ResponseEntity.ok(paqueteFacade.findByCategoria(categoriaId));
-        }
-        return ResponseEntity.ok(paqueteFacade.findAllByProveedor(userDetails.getProveedorId()));
+            @RequestParam(required = false) Long categoriaId,
+            Pageable pageable) {
+        var all = categoriaId != null
+                ? paqueteFacade.findByCategoria(categoriaId)
+                : paqueteFacade.findAllByProveedor(userDetails.getProveedorId());
+        return ResponseEntity.ok(PageUtils.toPage(all, pageable));
     }
 
     @PatchMapping("/{id}/deactivate")
