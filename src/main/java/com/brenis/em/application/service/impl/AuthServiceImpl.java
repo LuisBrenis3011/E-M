@@ -1,0 +1,94 @@
+package com.brenis.em.application.service.impl;
+
+import com.brenis.em.application.dto.request.LoginRequest;
+import com.brenis.em.application.dto.request.RegisterRequest;
+import com.brenis.em.application.dto.response.JwtResponse;
+import com.brenis.em.application.service.IAuthService;
+import com.brenis.em.application.service.IProveedorService;
+import com.brenis.em.application.service.IUsuarioService;
+import com.brenis.em.domain.enums.RolUsuario;
+import com.brenis.em.domain.proveedor.Proveedor;
+import com.brenis.em.domain.usuario.Usuario;
+import com.brenis.em.infrastructure.exception.BusinessException;
+import com.brenis.em.infrastructure.security.JwtProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class AuthServiceImpl implements IAuthService {
+
+    private final IUsuarioService usuarioService;
+    private final IProveedorService proveedorService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthServiceImpl(IUsuarioService usuarioService,
+                           IProveedorService proveedorService,
+                           AuthenticationManager authenticationManager,
+                           JwtProvider jwtProvider,
+                           PasswordEncoder passwordEncoder) {
+        this.usuarioService = usuarioService;
+        this.proveedorService = proveedorService;
+        this.authenticationManager = authenticationManager;
+        this.jwtProvider = jwtProvider;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public JwtResponse login(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+        usuarioService.updateLastAccess(request.getEmail());
+
+        String token = jwtProvider.generateToken(request.getEmail(), RolUsuario.PROVEEDOR.name());
+        Usuario usuario = usuarioService.findByEmail(request.getEmail());
+
+        return buildJwtResponse(token, usuario);
+    }
+
+    @Override
+    public JwtResponse register(RegisterRequest request) {
+        if (usuarioService.existsByEmail(request.getEmail())) {
+            throw new BusinessException("El email ya esta registrado");
+        }
+
+        Proveedor proveedor = Proveedor.builder()
+                .nombreEmpresa(request.getNombreEmpresa())
+                .ruc(request.getRuc())
+                .nombreGerente(request.getNombreGerente())
+                .direccion(request.getDireccion())
+                .telefono(request.getTelefonoEmpresa())
+                .email(request.getEmail())
+                .build();
+        proveedor = proveedorService.save(proveedor);
+
+        Usuario usuario = Usuario.builder()
+                .nombre(request.getNombre())
+                .apellido(request.getApellido())
+                .email(request.getEmail())
+                .telefono(request.getTelefono())
+                .contrasenaHash(passwordEncoder.encode(request.getPassword()))
+                .build();
+        usuario = usuarioService.saveProveedor(usuario, proveedor.getId());
+
+        String token = jwtProvider.generateToken(usuario.getEmail(), usuario.getRol().name());
+        return buildJwtResponse(token, usuario);
+    }
+
+    private JwtResponse buildJwtResponse(String token, Usuario usuario) {
+        return new JwtResponse(
+                token,
+                usuario.getEmail(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getRol().name(),
+                usuario.getProveedor() != null ? usuario.getProveedor().getId() : null
+        );
+    }
+}

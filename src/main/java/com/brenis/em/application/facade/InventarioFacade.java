@@ -3,7 +3,8 @@ package com.brenis.em.application.facade;
 import com.brenis.em.application.dto.request.InventarioRequest;
 import com.brenis.em.application.dto.response.InventarioResponse;
 import com.brenis.em.application.mapper.InventarioMapper;
-import com.brenis.em.application.service.InventarioService;
+import com.brenis.em.application.service.IInventarioService;
+import com.brenis.em.domain.inventario.Inventario;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,33 +12,33 @@ import java.util.List;
 @Component
 public class InventarioFacade {
 
-    private final InventarioService inventarioService;
+    private final IInventarioService inventarioService;
     private final InventarioMapper inventarioMapper;
 
-    public InventarioFacade(InventarioService inventarioService,
+    public InventarioFacade(IInventarioService inventarioService,
                             InventarioMapper inventarioMapper) {
         this.inventarioService = inventarioService;
         this.inventarioMapper = inventarioMapper;
     }
 
     public InventarioResponse create(Long proveedorId, InventarioRequest request) {
-        var entity = inventarioMapper.toEntity(request);
-        var saved = inventarioService.create(proveedorId, entity);
+        Inventario entity = inventarioMapper.toEntity(request);
+        Inventario saved = inventarioService.create(proveedorId, entity);
         return inventarioMapper.toResponse(saved);
     }
 
     public InventarioResponse update(Long id, InventarioRequest request) {
-        var entity = inventarioMapper.toEntity(request);
-        var updated = inventarioService.update(id, entity);
+        Inventario entity = inventarioMapper.toEntity(request);
+        Inventario updated = inventarioService.update(id, entity);
         return inventarioMapper.toResponse(updated);
     }
 
-    public InventarioResponse getById(Long id) {
-        return inventarioMapper.toResponse(inventarioService.getById(id));
+    public InventarioResponse findById(Long id) {
+        return inventarioMapper.toResponse(inventarioService.findById(id));
     }
 
-    public List<InventarioResponse> getAllByProveedor(Long proveedorId) {
-        return inventarioMapper.toResponseList(inventarioService.getAllByProveedor(proveedorId));
+    public List<InventarioResponse> findAllByProveedor(Long proveedorId) {
+        return inventarioMapper.toResponseList(inventarioService.findAllByProveedor(proveedorId));
     }
 
     public List<InventarioResponse> search(Long proveedorId, String query) {
@@ -48,7 +49,7 @@ public class InventarioFacade {
         inventarioService.deactivate(id);
     }
 
-    public void delete(Long id) {
-        inventarioService.delete(id);
+    public void deleteById(Long id) {
+        inventarioService.deleteById(id);
     }
 }

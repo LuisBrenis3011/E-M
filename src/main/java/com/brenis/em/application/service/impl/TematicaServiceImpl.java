@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.ITematicaService;
 import com.brenis.em.domain.tematica.Tematica;
 import com.brenis.em.domain.repository.CategoriaRepository;
 import com.brenis.em.domain.repository.TematicaRepository;
@@ -11,30 +12,34 @@ import java.util.List;
 
 @Service
 @Transactional
-public class TematicaService {
+public class TematicaServiceImpl implements ITematicaService {
 
     private final TematicaRepository tematicaRepository;
     private final CategoriaRepository categoriaRepository;
 
-    public TematicaService(TematicaRepository tematicaRepository,
-                           CategoriaRepository categoriaRepository) {
+    public TematicaServiceImpl(TematicaRepository tematicaRepository,
+                               CategoriaRepository categoriaRepository) {
         this.tematicaRepository = tematicaRepository;
         this.categoriaRepository = categoriaRepository;
     }
 
-    public List<Tematica> getAll() {
+    @Override
+    public List<Tematica> findAll() {
         return tematicaRepository.findAll();
     }
 
-    public List<Tematica> getByCategoria(Long categoriaId) {
+    @Override
+    public List<Tematica> findByCategoria(Long categoriaId) {
         return tematicaRepository.findByCategoriaId(categoriaId);
     }
 
-    public Tematica getById(Long id) {
+    @Override
+    public Tematica findById(Long id) {
         return tematicaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tematica", id));
     }
 
+    @Override
     public Tematica save(Long categoriaId, Tematica tematica) {
         tematica.setCategoria(categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoriaId)));

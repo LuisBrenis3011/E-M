@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.IContratoService;
 import com.brenis.em.domain.contrato.Contrato;
 import com.brenis.em.domain.contrato.DetalleContrato;
 import com.brenis.em.domain.enums.EstadoContrato;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class ContratoService {
+public class ContratoServiceImpl implements IContratoService {
 
     private final ContratoRepository contratoRepository;
     private final DetalleContratoRepository detalleContratoRepository;
@@ -26,13 +27,13 @@ public class ContratoService {
     private final DetallePaqueteRepository detallePaqueteRepository;
     private final InventarioRepository inventarioRepository;
 
-    public ContratoService(ContratoRepository contratoRepository,
-                           DetalleContratoRepository detalleContratoRepository,
-                           EventoRepository eventoRepository,
-                           PaqueteRepository paqueteRepository,
-                           ProveedorRepository proveedorRepository,
-                           DetallePaqueteRepository detallePaqueteRepository,
-                           InventarioRepository inventarioRepository) {
+    public ContratoServiceImpl(ContratoRepository contratoRepository,
+                               DetalleContratoRepository detalleContratoRepository,
+                               EventoRepository eventoRepository,
+                               PaqueteRepository paqueteRepository,
+                               ProveedorRepository proveedorRepository,
+                               DetallePaqueteRepository detallePaqueteRepository,
+                               InventarioRepository inventarioRepository) {
         this.contratoRepository = contratoRepository;
         this.detalleContratoRepository = detalleContratoRepository;
         this.eventoRepository = eventoRepository;
@@ -42,6 +43,7 @@ public class ContratoService {
         this.inventarioRepository = inventarioRepository;
     }
 
+    @Override
     public Contrato createFromPaquete(Long eventoId, Long paqueteId, Long proveedorId,
                                        BigDecimal costoMovilidad, BigDecimal montoAdelanto) {
         var evento = eventoRepository.findById(eventoId)
@@ -55,20 +57,21 @@ public class ContratoService {
             throw new BusinessException("El evento ya tiene un contrato asociado");
         }
 
+        BigDecimal movilidad = costoMovilidad != null ? costoMovilidad : BigDecimal.ZERO;
+        BigDecimal adelanto = montoAdelanto != null ? montoAdelanto : BigDecimal.ZERO;
+
         Contrato contrato = Contrato.builder()
                 .evento(evento)
                 .paquete(paquete)
                 .proveedor(proveedor)
                 .montoTotal(paquete.getPrecioBase())
-                .costoMovilidad(costoMovilidad != null ? costoMovilidad : BigDecimal.ZERO)
-                .montoAdelanto(montoAdelanto != null ? montoAdelanto : BigDecimal.ZERO)
-                .montoPendiente(paquete.getPrecioBase().subtract(
-                        montoAdelanto != null ? montoAdelanto : BigDecimal.ZERO))
+                .costoMovilidad(movilidad)
+                .montoAdelanto(adelanto)
+                .montoPendiente(paquete.getPrecioBase().subtract(adelanto))
                 .estado(EstadoContrato.BORRADOR)
                 .build();
 
         contrato = contratoRepository.save(contrato);
-
         copiarDetallesDesdePaquete(contrato, paquete);
 
         return contrato;
@@ -94,58 +97,53 @@ public class ContratoService {
         }
     }
 
-    public Contrato getById(Long id) {
+    @Override
+    public Contrato findById(Long id) {
         return contratoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contrato", id));
     }
 
-    public Contrato getByEvento(Long eventoId) {
+    @Override
+    public Contrato findByEvento(Long eventoId) {
         return contratoRepository.findByEventoId(eventoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Contrato para evento", eventoId));
     }
 
-    public List<Contrato> getAllByProveedor(Long proveedorId) {
+    @Override
+    public List<Contrato> findAllByProveedor(Long proveedorId) {
         return contratoRepository.findByProveedorId(proveedorId);
     }
 
+    @Override
     public Contrato update(Long id, Contrato datos) {
-        Contrato existente = getById(id);
+        Contrato existente = findById(id);
 
-        if (datos.getMontoTotal() != null) {
-            existente.setMontoTotal(datos.getMontoTotal());
-        }
-        if (datos.getCostoMovilidad() != null) {
-            existente.setCostoMovilidad(datos.getCostoMovilidad());
-        }
-        if (datos.getMontoAdelanto() != null) {
-            existente.setMontoAdelanto(datos.getMontoAdelanto());
-        }
-        if (datos.getDuracion() != null) {
-            existente.setDuracion(datos.getDuracion());
-        }
-        if (datos.getObservaciones() != null) {
-            existente.setObservaciones(datos.getObservaciones());
-        }
+        if (datos.getMontoTotal() != null) existente.setMontoTotal(datos.getMontoTotal());
+        if (datos.getCostoMovilidad() != null) existente.setCostoMovilidad(datos.getCostoMovilidad());
+        if (datos.getMontoAdelanto() != null) existente.setMontoAdelanto(datos.getMontoAdelanto());
+        if (datos.getDuracion() != null) existente.setDuracion(datos.getDuracion());
+        if (datos.getObservaciones() != null) existente.setObservaciones(datos.getObservaciones());
 
         existente.setMontoPendiente(existente.getMontoTotal().subtract(existente.getMontoAdelanto()));
 
         return contratoRepository.save(existente);
     }
 
+    @Override
     public Contrato cambiarEstado(Long id, EstadoContrato nuevoEstado) {
-        Contrato contrato = getById(id);
+        Contrato contrato = findById(id);
         contrato.setEstado(nuevoEstado);
         return contratoRepository.save(contrato);
     }
 
+    @Override
     public DetalleContrato addDetalle(Long contratoId, DetalleContrato detalle) {
-        Contrato contrato = getById(contratoId);
+        Contrato contrato = findById(contratoId);
         detalle.setContrato(contrato);
 
         if (detalle.getInventario() != null && detalle.getInventario().getId() != null) {
             var inventario = inventarioRepository.findById(detalle.getInventario().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Inventario",
-                            detalle.getInventario().getId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventario", detalle.getInventario().getId()));
             detalle.setInventario(inventario);
         }
 
@@ -155,6 +153,7 @@ public class ContratoService {
         return detalleContratoRepository.save(detalle);
     }
 
+    @Override
     public void removeDetalle(Long detalleId) {
         if (!detalleContratoRepository.existsById(detalleId)) {
             throw new ResourceNotFoundException("DetalleContrato", detalleId);

@@ -1,0 +1,12 @@
+package com.brenis.em.application.service;
+
+import com.brenis.em.application.dto.request.LoginRequest;
+import com.brenis.em.application.dto.request.RegisterRequest;
+import com.brenis.em.application.dto.response.JwtResponse;
+
+public interface IAuthService {
+
+    JwtResponse login(LoginRequest request);
+
+    JwtResponse register(RegisterRequest request);
+}

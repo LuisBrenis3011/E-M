@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.IPagoService;
 import com.brenis.em.domain.enums.EstadoPago;
 import com.brenis.em.domain.pago.Pago;
 import com.brenis.em.domain.repository.ContratoRepository;
@@ -17,27 +18,27 @@ import java.util.List;
 
 @Service
 @Transactional
-public class PagoService {
+public class PagoServiceImpl implements IPagoService {
 
     private final PagoRepository pagoRepository;
     private final ContratoRepository contratoRepository;
     private final UsuarioRepository usuarioRepository;
     private final FileStorageService fileStorageService;
 
-    public PagoService(PagoRepository pagoRepository,
-                       ContratoRepository contratoRepository,
-                       UsuarioRepository usuarioRepository,
-                       FileStorageService fileStorageService) {
+    public PagoServiceImpl(PagoRepository pagoRepository,
+                           ContratoRepository contratoRepository,
+                           UsuarioRepository usuarioRepository,
+                           FileStorageService fileStorageService) {
         this.pagoRepository = pagoRepository;
         this.contratoRepository = contratoRepository;
         this.usuarioRepository = usuarioRepository;
         this.fileStorageService = fileStorageService;
     }
 
+    @Override
     public Pago create(Pago pago, MultipartFile comprobante) {
         var contrato = contratoRepository.findById(pago.getContrato().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Contrato",
-                        pago.getContrato().getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Contrato", pago.getContrato().getId()));
 
         pago.setContrato(contrato);
 
@@ -51,8 +52,9 @@ public class PagoService {
         return pagoRepository.save(pago);
     }
 
+    @Override
     public Pago verificar(Long pagoId, Long verificadorId) {
-        Pago pago = getById(pagoId);
+        Pago pago = findById(pagoId);
 
         if (pago.getEstado() != EstadoPago.PENDIENTE) {
             throw new BusinessException("Solo se pueden verificar pagos pendientes");
@@ -68,8 +70,9 @@ public class PagoService {
         return pagoRepository.save(pago);
     }
 
+    @Override
     public Pago rechazar(Long pagoId, String motivo) {
-        Pago pago = getById(pagoId);
+        Pago pago = findById(pagoId);
 
         if (pago.getEstado() != EstadoPago.PENDIENTE) {
             throw new BusinessException("Solo se pueden rechazar pagos pendientes");
@@ -82,16 +85,19 @@ public class PagoService {
         return pagoRepository.save(pago);
     }
 
-    public Pago getById(Long id) {
+    @Override
+    public Pago findById(Long id) {
         return pagoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pago", id));
     }
 
-    public List<Pago> getByContrato(Long contratoId) {
+    @Override
+    public List<Pago> findByContrato(Long contratoId) {
         return pagoRepository.findByContratoIdOrderByFechaPagoDesc(contratoId);
     }
 
-    public List<Pago> getPendientes() {
+    @Override
+    public List<Pago> findPendientes() {
         return pagoRepository.findByEstado(EstadoPago.PENDIENTE);
     }
 

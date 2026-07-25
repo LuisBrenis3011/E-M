@@ -3,7 +3,7 @@ package com.brenis.em.application.facade;
 import com.brenis.em.application.dto.request.PagoRequest;
 import com.brenis.em.application.dto.response.PagoResponse;
 import com.brenis.em.application.mapper.PagoMapper;
-import com.brenis.em.application.service.PagoService;
+import com.brenis.em.application.service.IPagoService;
 import com.brenis.em.domain.contrato.Contrato;
 import com.brenis.em.domain.pago.Pago;
 import org.springframework.stereotype.Component;
@@ -14,10 +14,10 @@ import java.util.List;
 @Component
 public class PagoFacade {
 
-    private final PagoService pagoService;
+    private final IPagoService pagoService;
     private final PagoMapper pagoMapper;
 
-    public PagoFacade(PagoService pagoService, PagoMapper pagoMapper) {
+    public PagoFacade(IPagoService pagoService, PagoMapper pagoMapper) {
         this.pagoService = pagoService;
         this.pagoMapper = pagoMapper;
     }
@@ -43,15 +43,15 @@ public class PagoFacade {
         return pagoMapper.toResponse(pagoService.rechazar(pagoId, motivo));
     }
 
-    public PagoResponse getById(Long id) {
-        return pagoMapper.toResponse(pagoService.getById(id));
+    public PagoResponse findById(Long id) {
+        return pagoMapper.toResponse(pagoService.findById(id));
     }
 
-    public List<PagoResponse> getByContrato(Long contratoId) {
-        return pagoMapper.toResponseList(pagoService.getByContrato(contratoId));
+    public List<PagoResponse> findByContrato(Long contratoId) {
+        return pagoMapper.toResponseList(pagoService.findByContrato(contratoId));
     }
 
-    public List<PagoResponse> getPendientes() {
-        return pagoMapper.toResponseList(pagoService.getPendientes());
+    public List<PagoResponse> findPendientes() {
+        return pagoMapper.toResponseList(pagoService.findPendientes());
     }
 }

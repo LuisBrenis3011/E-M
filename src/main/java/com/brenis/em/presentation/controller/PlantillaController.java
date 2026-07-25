@@ -40,14 +40,14 @@ public class PlantillaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlantillaResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(plantillaFacade.getById(id));
+    public ResponseEntity<PlantillaResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(plantillaFacade.findById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<PlantillaResponse>> getAll(
+    public ResponseEntity<List<PlantillaResponse>> findAll(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(plantillaFacade.getAllByProveedor(userDetails.getProveedorId()));
+        return ResponseEntity.ok(plantillaFacade.findAllByProveedor(userDetails.getProveedorId()));
     }
 
     @PatchMapping("/{id}/deactivate")
@@ -58,7 +58,7 @@ public class PlantillaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        plantillaFacade.delete(id);
+        plantillaFacade.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

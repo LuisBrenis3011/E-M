@@ -4,7 +4,7 @@ import com.brenis.em.application.dto.request.DetallePaqueteRequest;
 import com.brenis.em.application.dto.request.PaqueteRequest;
 import com.brenis.em.application.dto.response.PaqueteResponse;
 import com.brenis.em.application.mapper.PaqueteMapper;
-import com.brenis.em.application.service.PaqueteService;
+import com.brenis.em.application.service.IPaqueteService;
 import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.inventario.Inventario;
 import com.brenis.em.domain.paquete.DetallePaquete;
@@ -17,10 +17,10 @@ import java.util.List;
 @Component
 public class PaqueteFacade {
 
-    private final PaqueteService paqueteService;
+    private final IPaqueteService paqueteService;
     private final PaqueteMapper paqueteMapper;
 
-    public PaqueteFacade(PaqueteService paqueteService, PaqueteMapper paqueteMapper) {
+    public PaqueteFacade(IPaqueteService paqueteService, PaqueteMapper paqueteMapper) {
         this.paqueteService = paqueteService;
         this.paqueteMapper = paqueteMapper;
     }
@@ -53,7 +53,7 @@ public class PaqueteFacade {
             }
         }
 
-        return paqueteMapper.toResponse(paqueteService.getById(paquete.getId()));
+        return paqueteMapper.toResponse(paqueteService.findById(paquete.getId()));
     }
 
     public PaqueteResponse update(Long id, PaqueteRequest request) {
@@ -72,16 +72,16 @@ public class PaqueteFacade {
         return paqueteMapper.toResponse(paqueteService.update(id, paquete));
     }
 
-    public PaqueteResponse getById(Long id) {
-        return paqueteMapper.toResponse(paqueteService.getById(id));
+    public PaqueteResponse findById(Long id) {
+        return paqueteMapper.toResponse(paqueteService.findById(id));
     }
 
-    public List<PaqueteResponse> getAllByProveedor(Long proveedorId) {
-        return paqueteMapper.toResponseList(paqueteService.getAllByProveedor(proveedorId));
+    public List<PaqueteResponse> findAllByProveedor(Long proveedorId) {
+        return paqueteMapper.toResponseList(paqueteService.findAllByProveedor(proveedorId));
     }
 
-    public List<PaqueteResponse> getByCategoria(Long categoriaId) {
-        return paqueteMapper.toResponseList(paqueteService.getByCategoria(categoriaId));
+    public List<PaqueteResponse> findByCategoria(Long categoriaId) {
+        return paqueteMapper.toResponseList(paqueteService.findByCategoria(categoriaId));
     }
 
     public void deactivate(Long id) {

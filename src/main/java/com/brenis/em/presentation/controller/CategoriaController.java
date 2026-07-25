@@ -1,9 +1,9 @@
 package com.brenis.em.presentation.controller;
 
+import com.brenis.em.application.service.ICategoriaService;
+import com.brenis.em.application.service.ITematicaService;
 import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.tematica.Tematica;
-import com.brenis.em.application.service.CategoriaService;
-import com.brenis.em.application.service.TematicaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,27 +13,27 @@ import java.util.List;
 @RequestMapping("/api/categorias")
 public class CategoriaController {
 
-    private final CategoriaService categoriaService;
-    private final TematicaService tematicaService;
+    private final ICategoriaService categoriaService;
+    private final ITematicaService tematicaService;
 
-    public CategoriaController(CategoriaService categoriaService,
-                               TematicaService tematicaService) {
+    public CategoriaController(ICategoriaService categoriaService,
+                               ITematicaService tematicaService) {
         this.categoriaService = categoriaService;
         this.tematicaService = tematicaService;
     }
 
     @GetMapping
-    public ResponseEntity<List<Categoria>> getAll() {
-        return ResponseEntity.ok(categoriaService.getAll());
+    public ResponseEntity<List<Categoria>> findAll() {
+        return ResponseEntity.ok(categoriaService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Categoria> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(categoriaService.getById(id));
+    public ResponseEntity<Categoria> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoriaService.findById(id));
     }
 
     @GetMapping("/{id}/tematicas")
-    public ResponseEntity<List<Tematica>> getTematicas(@PathVariable Long id) {
-        return ResponseEntity.ok(tematicaService.getByCategoria(id));
+    public ResponseEntity<List<Tematica>> findTematicas(@PathVariable Long id) {
+        return ResponseEntity.ok(tematicaService.findByCategoria(id));
     }
 }

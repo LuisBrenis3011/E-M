@@ -12,6 +12,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     List<Cliente> findByProveedorId(Long proveedorId);
 
+    long countByProveedorId(Long proveedorId);
+
     Optional<Cliente> findByDniAndProveedorId(String dni, Long proveedorId);
 
     List<Cliente> findByProveedorIdAndNombreCompletoContainingIgnoreCase(Long proveedorId, String nombre);

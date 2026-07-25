@@ -23,4 +23,6 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     List<Evento> findCalendario(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 
     List<Evento> findByEstado(EstadoEvento estado);
+
+    long countByEstado(EstadoEvento estado);
 }

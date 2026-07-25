@@ -40,18 +40,18 @@ public class PaqueteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PaqueteResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(paqueteFacade.getById(id));
+    public ResponseEntity<PaqueteResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(paqueteFacade.findById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<PaqueteResponse>> getAll(
+    public ResponseEntity<List<PaqueteResponse>> findAll(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) Long categoriaId) {
         if (categoriaId != null) {
-            return ResponseEntity.ok(paqueteFacade.getByCategoria(categoriaId));
+            return ResponseEntity.ok(paqueteFacade.findByCategoria(categoriaId));
         }
-        return ResponseEntity.ok(paqueteFacade.getAllByProveedor(userDetails.getProveedorId()));
+        return ResponseEntity.ok(paqueteFacade.findAllByProveedor(userDetails.getProveedorId()));
     }
 
     @PatchMapping("/{id}/deactivate")

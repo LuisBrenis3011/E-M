@@ -2,7 +2,7 @@ package com.brenis.em.presentation.controller;
 
 import com.brenis.em.application.dto.response.ContratoDocumentoResponse;
 import com.brenis.em.application.mapper.ContratoDocumentoMapper;
-import com.brenis.em.application.service.PdfGenerationService;
+import com.brenis.em.application.service.IPdfGenerationService;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +17,10 @@ import java.util.List;
 @PreAuthorize("hasRole('PROVEEDOR')")
 public class DocumentoController {
 
-    private final PdfGenerationService pdfGenerationService;
+    private final IPdfGenerationService pdfGenerationService;
     private final ContratoDocumentoMapper documentoMapper;
 
-    public DocumentoController(PdfGenerationService pdfGenerationService,
+    public DocumentoController(IPdfGenerationService pdfGenerationService,
                                ContratoDocumentoMapper documentoMapper) {
         this.pdfGenerationService = pdfGenerationService;
         this.documentoMapper = documentoMapper;
@@ -36,10 +36,10 @@ public class DocumentoController {
     }
 
     @GetMapping("/contrato/{contratoId}")
-    public ResponseEntity<List<ContratoDocumentoResponse>> getByContrato(
+    public ResponseEntity<List<ContratoDocumentoResponse>> findByContrato(
             @PathVariable Long contratoId) {
         return ResponseEntity.ok(
                 documentoMapper.toResponseList(
-                        pdfGenerationService.getDocumentosByContrato(contratoId)));
+                        pdfGenerationService.findByContrato(contratoId)));
     }
 }

@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.IInventarioService;
 import com.brenis.em.domain.enums.EstadoBasico;
 import com.brenis.em.domain.inventario.Inventario;
 import com.brenis.em.domain.repository.InventarioRepository;
@@ -12,25 +13,27 @@ import java.util.List;
 
 @Service
 @Transactional
-public class InventarioService {
+public class InventarioServiceImpl implements IInventarioService {
 
     private final InventarioRepository inventarioRepository;
     private final ProveedorRepository proveedorRepository;
 
-    public InventarioService(InventarioRepository inventarioRepository,
-                             ProveedorRepository proveedorRepository) {
+    public InventarioServiceImpl(InventarioRepository inventarioRepository,
+                                 ProveedorRepository proveedorRepository) {
         this.inventarioRepository = inventarioRepository;
         this.proveedorRepository = proveedorRepository;
     }
 
+    @Override
     public Inventario create(Long proveedorId, Inventario item) {
         item.setProveedor(proveedorRepository.findById(proveedorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proveedor", proveedorId)));
         return inventarioRepository.save(item);
     }
 
+    @Override
     public Inventario update(Long id, Inventario datos) {
-        Inventario existente = getById(id);
+        Inventario existente = findById(id);
         existente.setNombre(datos.getNombre());
         existente.setDescripcion(datos.getDescripcion());
         existente.setCantidadDisponible(datos.getCantidadDisponible());
@@ -38,29 +41,34 @@ public class InventarioService {
         return inventarioRepository.save(existente);
     }
 
-    public Inventario getById(Long id) {
+    @Override
+    public Inventario findById(Long id) {
         return inventarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventario", id));
     }
 
-    public List<Inventario> getAllByProveedor(Long proveedorId) {
+    @Override
+    public List<Inventario> findAllByProveedor(Long proveedorId) {
         return inventarioRepository.findByProveedorIdAndEstado(proveedorId, EstadoBasico.ACTIVO);
     }
 
+    @Override
     public List<Inventario> search(Long proveedorId, String query) {
         if (query == null || query.isBlank()) {
-            return getAllByProveedor(proveedorId);
+            return findAllByProveedor(proveedorId);
         }
         return inventarioRepository.searchInventario(proveedorId, query);
     }
 
+    @Override
     public void deactivate(Long id) {
-        Inventario item = getById(id);
+        Inventario item = findById(id);
         item.setEstado(EstadoBasico.INACTIVO);
         inventarioRepository.save(item);
     }
 
-    public void delete(Long id) {
+    @Override
+    public void deleteById(Long id) {
         if (!inventarioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Inventario", id);
         }

@@ -1,7 +1,7 @@
 package com.brenis.em.presentation.controller;
 
+import com.brenis.em.application.service.ITematicaService;
 import com.brenis.em.domain.tematica.Tematica;
-import com.brenis.em.application.service.TematicaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,23 +11,23 @@ import java.util.List;
 @RequestMapping("/api/tematicas")
 public class TematicaController {
 
-    private final TematicaService tematicaService;
+    private final ITematicaService tematicaService;
 
-    public TematicaController(TematicaService tematicaService) {
+    public TematicaController(ITematicaService tematicaService) {
         this.tematicaService = tematicaService;
     }
 
     @GetMapping
-    public ResponseEntity<List<Tematica>> getAll(
+    public ResponseEntity<List<Tematica>> findAll(
             @RequestParam(required = false) Long categoriaId) {
         if (categoriaId != null) {
-            return ResponseEntity.ok(tematicaService.getByCategoria(categoriaId));
+            return ResponseEntity.ok(tematicaService.findByCategoria(categoriaId));
         }
-        return ResponseEntity.ok(tematicaService.getAll());
+        return ResponseEntity.ok(tematicaService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Tematica> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(tematicaService.getById(id));
+    public ResponseEntity<Tematica> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(tematicaService.findById(id));
     }
 }

@@ -6,6 +6,9 @@ import com.brenis.em.application.facade.EventoFacade;
 import com.brenis.em.domain.enums.EstadoEvento;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,22 +42,23 @@ public class EventoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventoResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(eventoFacade.getById(id));
+    public ResponseEntity<EventoResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(eventoFacade.findById(id));
     }
 
     @GetMapping("/calendario")
-    public ResponseEntity<List<EventoResponse>> getCalendario(
+    public ResponseEntity<Page<EventoResponse>> findCalendario(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        return ResponseEntity.ok(eventoFacade.getCalendario(
-                userDetails.getProveedorId(), inicio, fin));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
+            Pageable pageable) {
+        List<EventoResponse> all = eventoFacade.findCalendario(inicio, fin);
+        return ResponseEntity.ok(toPage(all, pageable));
     }
 
     @GetMapping("/cliente/{clienteId}")
-    public ResponseEntity<List<EventoResponse>> getByCliente(@PathVariable Long clienteId) {
-        return ResponseEntity.ok(eventoFacade.getByCliente(clienteId));
+    public ResponseEntity<List<EventoResponse>> findByCliente(@PathVariable Long clienteId) {
+        return ResponseEntity.ok(eventoFacade.findByCliente(clienteId));
     }
 
     @PatchMapping("/{id}/estado")
@@ -66,7 +70,14 @@ public class EventoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        eventoFacade.delete(id);
+        eventoFacade.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private <T> Page<T> toPage(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        if (start > list.size()) return new PageImpl<>(List.of(), pageable, list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

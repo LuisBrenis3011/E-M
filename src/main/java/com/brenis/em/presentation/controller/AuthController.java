@@ -1,12 +1,14 @@
 package com.brenis.em.presentation.controller;
 
 import com.brenis.em.application.dto.request.LoginRequest;
+import com.brenis.em.application.dto.request.ProveedorUpdateRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.JwtResponse;
 import com.brenis.em.application.dto.response.ProveedorResponse;
 import com.brenis.em.application.facade.AuthFacade;
 import com.brenis.em.application.mapper.ProveedorMapper;
-import com.brenis.em.application.service.ProveedorService;
+import com.brenis.em.application.service.IProveedorService;
+import com.brenis.em.domain.proveedor.Proveedor;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthFacade authFacade;
-    private final ProveedorService proveedorService;
+    private final IProveedorService proveedorService;
     private final ProveedorMapper proveedorMapper;
 
     public AuthController(AuthFacade authFacade,
-                          ProveedorService proveedorService,
+                          IProveedorService proveedorService,
                           ProveedorMapper proveedorMapper) {
         this.authFacade = authFacade;
         this.proveedorService = proveedorService;
@@ -53,6 +55,28 @@ public class AuthController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(
-                proveedorMapper.toResponse(proveedorService.getById(proveedorId)));
+                proveedorMapper.toResponse(proveedorService.findById(proveedorId)));
+    }
+
+    @PutMapping("/proveedor")
+    public ResponseEntity<ProveedorResponse> updateProveedor(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ProveedorUpdateRequest request) {
+        Long proveedorId = userDetails.getProveedorId();
+        if (proveedorId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Proveedor datos = Proveedor.builder()
+                .nombreEmpresa(request.getNombreEmpresa())
+                .ruc(request.getRuc())
+                .nombreGerente(request.getNombreGerente())
+                .direccion(request.getDireccion())
+                .telefono(request.getTelefono())
+                .email(request.getEmail())
+                .logoUrl(request.getLogoUrl())
+                .terminosCondiciones(request.getTerminosCondiciones())
+                .build();
+        return ResponseEntity.ok(
+                proveedorMapper.toResponse(proveedorService.update(proveedorId, datos)));
     }
 }

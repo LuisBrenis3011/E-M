@@ -3,6 +3,9 @@ package com.brenis.em.presentation.controller;
 import com.brenis.em.application.dto.response.PagoResponse;
 import com.brenis.em.application.facade.PagoFacade;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,18 +50,19 @@ public class PagoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PagoResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(pagoFacade.getById(id));
+    public ResponseEntity<PagoResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(pagoFacade.findById(id));
     }
 
     @GetMapping("/contrato/{contratoId}")
-    public ResponseEntity<List<PagoResponse>> getByContrato(@PathVariable Long contratoId) {
-        return ResponseEntity.ok(pagoFacade.getByContrato(contratoId));
+    public ResponseEntity<List<PagoResponse>> findByContrato(@PathVariable Long contratoId) {
+        return ResponseEntity.ok(pagoFacade.findByContrato(contratoId));
     }
 
     @GetMapping("/pendientes")
-    public ResponseEntity<List<PagoResponse>> getPendientes() {
-        return ResponseEntity.ok(pagoFacade.getPendientes());
+    public ResponseEntity<Page<PagoResponse>> findPendientes(Pageable pageable) {
+        List<PagoResponse> all = pagoFacade.findPendientes();
+        return ResponseEntity.ok(toPage(all, pageable));
     }
 
     @PatchMapping("/{id}/verificar")
@@ -73,5 +77,12 @@ public class PagoController {
             @PathVariable Long id,
             @RequestParam String motivo) {
         return ResponseEntity.ok(pagoFacade.rechazar(id, motivo));
+    }
+
+    private <T> Page<T> toPage(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        if (start > list.size()) return new PageImpl<>(List.of(), pageable, list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }

@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.IEventoService;
 import com.brenis.em.domain.enums.EstadoEvento;
 import com.brenis.em.domain.evento.Evento;
 import com.brenis.em.domain.repository.*;
@@ -12,43 +13,42 @@ import java.util.List;
 
 @Service
 @Transactional
-public class EventoService {
+public class EventoServiceImpl implements IEventoService {
 
     private final EventoRepository eventoRepository;
     private final ClienteRepository clienteRepository;
     private final CategoriaRepository categoriaRepository;
     private final TematicaRepository tematicaRepository;
 
-    public EventoService(EventoRepository eventoRepository,
-                         ClienteRepository clienteRepository,
-                         CategoriaRepository categoriaRepository,
-                         TematicaRepository tematicaRepository) {
+    public EventoServiceImpl(EventoRepository eventoRepository,
+                             ClienteRepository clienteRepository,
+                             CategoriaRepository categoriaRepository,
+                             TematicaRepository tematicaRepository) {
         this.eventoRepository = eventoRepository;
         this.clienteRepository = clienteRepository;
         this.categoriaRepository = categoriaRepository;
         this.tematicaRepository = tematicaRepository;
     }
 
+    @Override
     public Evento create(Evento evento) {
         evento.setCliente(clienteRepository.findById(evento.getCliente().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente",
-                        evento.getCliente().getId())));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente", evento.getCliente().getId())));
 
         evento.setCategoria(categoriaRepository.findById(evento.getCategoria().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria",
-                        evento.getCategoria().getId())));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", evento.getCategoria().getId())));
 
         if (evento.getTematica() != null && evento.getTematica().getId() != null) {
             evento.setTematica(tematicaRepository.findById(evento.getTematica().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tematica",
-                            evento.getTematica().getId())));
+                    .orElseThrow(() -> new ResourceNotFoundException("Tematica", evento.getTematica().getId())));
         }
 
         return eventoRepository.save(evento);
     }
 
+    @Override
     public Evento update(Long id, Evento datos) {
-        Evento existente = getById(id);
+        Evento existente = findById(id);
         existente.setTipoEvento(datos.getTipoEvento());
         existente.setNombreCumpleanero(datos.getNombreCumpleanero());
         existente.setEdadCumpleanero(datos.getEdadCumpleanero());
@@ -63,14 +63,12 @@ public class EventoService {
 
         if (datos.getCategoria() != null && datos.getCategoria().getId() != null) {
             existente.setCategoria(categoriaRepository.findById(datos.getCategoria().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Categoria",
-                            datos.getCategoria().getId())));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria", datos.getCategoria().getId())));
         }
 
         if (datos.getTematica() != null && datos.getTematica().getId() != null) {
             existente.setTematica(tematicaRepository.findById(datos.getTematica().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tematica",
-                            datos.getTematica().getId())));
+                    .orElseThrow(() -> new ResourceNotFoundException("Tematica", datos.getTematica().getId())));
         } else {
             existente.setTematica(null);
         }
@@ -78,26 +76,31 @@ public class EventoService {
         return eventoRepository.save(existente);
     }
 
-    public Evento getById(Long id) {
+    @Override
+    public Evento findById(Long id) {
         return eventoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", id));
     }
 
-    public List<Evento> getCalendario(Long proveedorId, LocalDate inicio, LocalDate fin) {
+    @Override
+    public List<Evento> findCalendario(LocalDate inicio, LocalDate fin) {
         return eventoRepository.findCalendario(inicio, fin);
     }
 
-    public List<Evento> getByCliente(Long clienteId) {
+    @Override
+    public List<Evento> findByCliente(Long clienteId) {
         return eventoRepository.findByClienteId(clienteId);
     }
 
+    @Override
     public Evento cambiarEstado(Long id, EstadoEvento nuevoEstado) {
-        Evento evento = getById(id);
+        Evento evento = findById(id);
         evento.setEstado(nuevoEstado);
         return eventoRepository.save(evento);
     }
 
-    public void delete(Long id) {
+    @Override
+    public void deleteById(Long id) {
         if (!eventoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Evento", id);
         }

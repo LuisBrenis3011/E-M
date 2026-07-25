@@ -3,7 +3,7 @@ package com.brenis.em.application.facade;
 import com.brenis.em.application.dto.request.PlantillaRequest;
 import com.brenis.em.application.dto.response.PlantillaResponse;
 import com.brenis.em.application.mapper.PlantillaMapper;
-import com.brenis.em.application.service.PlantillaService;
+import com.brenis.em.application.service.IPlantillaService;
 import com.brenis.em.domain.plantilla.PlantillaContrato;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +12,10 @@ import java.util.List;
 @Component
 public class PlantillaFacade {
 
-    private final PlantillaService plantillaService;
+    private final IPlantillaService plantillaService;
     private final PlantillaMapper plantillaMapper;
 
-    public PlantillaFacade(PlantillaService plantillaService, PlantillaMapper plantillaMapper) {
+    public PlantillaFacade(IPlantillaService plantillaService, PlantillaMapper plantillaMapper) {
         this.plantillaService = plantillaService;
         this.plantillaMapper = plantillaMapper;
     }
@@ -46,19 +46,19 @@ public class PlantillaFacade {
         return plantillaMapper.toResponse(plantillaService.update(id, plantilla));
     }
 
-    public PlantillaResponse getById(Long id) {
-        return plantillaMapper.toResponse(plantillaService.getById(id));
+    public PlantillaResponse findById(Long id) {
+        return plantillaMapper.toResponse(plantillaService.findById(id));
     }
 
-    public List<PlantillaResponse> getAllByProveedor(Long proveedorId) {
-        return plantillaMapper.toResponseList(plantillaService.getAllByProveedor(proveedorId));
+    public List<PlantillaResponse> findAllByProveedor(Long proveedorId) {
+        return plantillaMapper.toResponseList(plantillaService.findAllByProveedor(proveedorId));
     }
 
     public void deactivate(Long id) {
         plantillaService.deactivate(id);
     }
 
-    public void delete(Long id) {
-        plantillaService.delete(id);
+    public void deleteById(Long id) {
+        plantillaService.deleteById(id);
     }
 }

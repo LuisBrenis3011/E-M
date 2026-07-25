@@ -1,5 +1,6 @@
-package com.brenis.em.application.service;
+package com.brenis.em.application.service.impl;
 
+import com.brenis.em.application.service.IPlantillaService;
 import com.brenis.em.domain.enums.EstadoBasico;
 import com.brenis.em.domain.plantilla.PlantillaContrato;
 import com.brenis.em.domain.repository.PlantillaContratoRepository;
@@ -12,17 +13,18 @@ import java.util.List;
 
 @Service
 @Transactional
-public class PlantillaService {
+public class PlantillaServiceImpl implements IPlantillaService {
 
     private final PlantillaContratoRepository plantillaRepository;
     private final ProveedorRepository proveedorRepository;
 
-    public PlantillaService(PlantillaContratoRepository plantillaRepository,
-                            ProveedorRepository proveedorRepository) {
+    public PlantillaServiceImpl(PlantillaContratoRepository plantillaRepository,
+                                ProveedorRepository proveedorRepository) {
         this.plantillaRepository = plantillaRepository;
         this.proveedorRepository = proveedorRepository;
     }
 
+    @Override
     public PlantillaContrato create(Long proveedorId, PlantillaContrato plantilla) {
         plantilla.setProveedor(proveedorRepository.findById(proveedorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proveedor", proveedorId)));
@@ -38,8 +40,9 @@ public class PlantillaService {
         return plantillaRepository.save(plantilla);
     }
 
+    @Override
     public PlantillaContrato update(Long id, PlantillaContrato datos) {
-        PlantillaContrato existente = getById(id);
+        PlantillaContrato existente = findById(id);
         existente.setNombre(datos.getNombre());
         existente.setDescripcion(datos.getDescripcion());
         existente.setTipo(datos.getTipo());
@@ -47,8 +50,7 @@ public class PlantillaService {
         existente.setPlaceholders(datos.getPlaceholders());
 
         if (Boolean.TRUE.equals(datos.getEsDefault())) {
-            plantillaRepository.findByProveedorIdAndEsDefaultTrue(
-                    existente.getProveedor().getId())
+            plantillaRepository.findByProveedorIdAndEsDefaultTrue(existente.getProveedor().getId())
                     .ifPresent(e -> {
                         if (!e.getId().equals(id)) {
                             e.setEsDefault(false);
@@ -61,22 +63,26 @@ public class PlantillaService {
         return plantillaRepository.save(existente);
     }
 
-    public PlantillaContrato getById(Long id) {
+    @Override
+    public PlantillaContrato findById(Long id) {
         return plantillaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Plantilla", id));
     }
 
-    public List<PlantillaContrato> getAllByProveedor(Long proveedorId) {
+    @Override
+    public List<PlantillaContrato> findAllByProveedor(Long proveedorId) {
         return plantillaRepository.findByProveedorIdAndEstado(proveedorId, EstadoBasico.ACTIVO);
     }
 
+    @Override
     public void deactivate(Long id) {
-        PlantillaContrato plantilla = getById(id);
+        PlantillaContrato plantilla = findById(id);
         plantilla.setEstado(EstadoBasico.INACTIVO);
         plantillaRepository.save(plantilla);
     }
 
-    public void delete(Long id) {
+    @Override
+    public void deleteById(Long id) {
         if (!plantillaRepository.existsById(id)) {
             throw new ResourceNotFoundException("Plantilla", id);
         }

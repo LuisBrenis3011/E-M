@@ -4,7 +4,7 @@ import com.brenis.em.application.dto.request.ContratoRequest;
 import com.brenis.em.application.dto.request.DetalleContratoRequest;
 import com.brenis.em.application.dto.response.ContratoResponse;
 import com.brenis.em.application.mapper.ContratoMapper;
-import com.brenis.em.application.service.ContratoService;
+import com.brenis.em.application.service.IContratoService;
 import com.brenis.em.domain.contrato.DetalleContrato;
 import com.brenis.em.domain.enums.EstadoContrato;
 import com.brenis.em.domain.inventario.Inventario;
@@ -15,10 +15,10 @@ import java.util.List;
 @Component
 public class ContratoFacade {
 
-    private final ContratoService contratoService;
+    private final IContratoService contratoService;
     private final ContratoMapper contratoMapper;
 
-    public ContratoFacade(ContratoService contratoService, ContratoMapper contratoMapper) {
+    public ContratoFacade(IContratoService contratoService, ContratoMapper contratoMapper) {
         this.contratoService = contratoService;
         this.contratoMapper = contratoMapper;
     }
@@ -31,19 +31,19 @@ public class ContratoFacade {
                 request.getCostoMovilidad(),
                 request.getMontoAdelanto());
 
-        return contratoMapper.toResponse(contratoService.getById(contrato.getId()));
+        return contratoMapper.toResponse(contratoService.findById(contrato.getId()));
     }
 
-    public ContratoResponse getById(Long id) {
-        return contratoMapper.toResponse(contratoService.getById(id));
+    public ContratoResponse findById(Long id) {
+        return contratoMapper.toResponse(contratoService.findById(id));
     }
 
-    public ContratoResponse getByEvento(Long eventoId) {
-        return contratoMapper.toResponse(contratoService.getByEvento(eventoId));
+    public ContratoResponse findByEvento(Long eventoId) {
+        return contratoMapper.toResponse(contratoService.findByEvento(eventoId));
     }
 
-    public List<ContratoResponse> getAllByProveedor(Long proveedorId) {
-        return contratoMapper.toResponseList(contratoService.getAllByProveedor(proveedorId));
+    public List<ContratoResponse> findAllByProveedor(Long proveedorId) {
+        return contratoMapper.toResponseList(contratoService.findAllByProveedor(proveedorId));
     }
 
     public ContratoResponse addDetalle(Long contratoId, DetalleContratoRequest request) {
@@ -57,7 +57,7 @@ public class ContratoFacade {
                 .build();
 
         contratoService.addDetalle(contratoId, det);
-        return contratoMapper.toResponse(contratoService.getById(contratoId));
+        return contratoMapper.toResponse(contratoService.findById(contratoId));
     }
 
     public void removeDetalle(Long detalleId) {

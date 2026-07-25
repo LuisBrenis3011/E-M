@@ -1,10 +1,9 @@
 package com.brenis.em.application.facade;
 
 import com.brenis.em.application.dto.request.EventoRequest;
-import com.brenis.em.application.dto.response.CalendarioResponse;
 import com.brenis.em.application.dto.response.EventoResponse;
 import com.brenis.em.application.mapper.EventoMapper;
-import com.brenis.em.application.service.EventoService;
+import com.brenis.em.application.service.IEventoService;
 import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.cliente.Cliente;
 import com.brenis.em.domain.enums.EstadoEvento;
@@ -18,10 +17,10 @@ import java.util.List;
 @Component
 public class EventoFacade {
 
-    private final EventoService eventoService;
+    private final IEventoService eventoService;
     private final EventoMapper eventoMapper;
 
-    public EventoFacade(EventoService eventoService, EventoMapper eventoMapper) {
+    public EventoFacade(IEventoService eventoService, EventoMapper eventoMapper) {
         this.eventoService = eventoService;
         this.eventoMapper = eventoMapper;
     }
@@ -73,23 +72,23 @@ public class EventoFacade {
         return eventoMapper.toResponse(eventoService.update(id, evento));
     }
 
-    public EventoResponse getById(Long id) {
-        return eventoMapper.toResponse(eventoService.getById(id));
+    public EventoResponse findById(Long id) {
+        return eventoMapper.toResponse(eventoService.findById(id));
     }
 
-    public List<EventoResponse> getCalendario(Long proveedorId, LocalDate inicio, LocalDate fin) {
-        return eventoMapper.toResponseList(eventoService.getCalendario(proveedorId, inicio, fin));
+    public List<EventoResponse> findCalendario(LocalDate inicio, LocalDate fin) {
+        return eventoMapper.toResponseList(eventoService.findCalendario(inicio, fin));
     }
 
-    public List<EventoResponse> getByCliente(Long clienteId) {
-        return eventoMapper.toResponseList(eventoService.getByCliente(clienteId));
+    public List<EventoResponse> findByCliente(Long clienteId) {
+        return eventoMapper.toResponseList(eventoService.findByCliente(clienteId));
     }
 
     public EventoResponse cambiarEstado(Long id, EstadoEvento estado) {
         return eventoMapper.toResponse(eventoService.cambiarEstado(id, estado));
     }
 
-    public void delete(Long id) {
-        eventoService.delete(id);
+    public void deleteById(Long id) {
+        eventoService.deleteById(id);
     }
 }

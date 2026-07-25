@@ -5,6 +5,9 @@ import com.brenis.em.application.dto.response.InventarioResponse;
 import com.brenis.em.application.facade.InventarioFacade;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,14 +43,17 @@ public class InventarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InventarioResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(inventarioFacade.getById(id));
+    public ResponseEntity<InventarioResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(inventarioFacade.findById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<InventarioResponse>> getAll(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(inventarioFacade.getAllByProveedor(userDetails.getProveedorId()));
+    public ResponseEntity<Page<InventarioResponse>> findAll(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Pageable pageable) {
+        List<InventarioResponse> all = inventarioFacade.findAllByProveedor(
+                userDetails.getProveedorId());
+        return ResponseEntity.ok(toPage(all, pageable));
     }
 
     @GetMapping("/search")
@@ -65,7 +71,14 @@ public class InventarioController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        inventarioFacade.delete(id);
+        inventarioFacade.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private <T> Page<T> toPage(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        if (start > list.size()) return new PageImpl<>(List.of(), pageable, list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }
