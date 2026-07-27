@@ -13,4 +13,8 @@ public interface ITematicaService {
     Tematica findById(Long id);
 
     Tematica save(Long categoriaId, Tematica tematica);
+
+    Tematica update(Long id, Long categoriaId, Tematica datos);
+
+    void deleteById(Long id);
 }

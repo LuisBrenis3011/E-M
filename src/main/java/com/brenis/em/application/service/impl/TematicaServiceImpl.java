@@ -45,4 +45,22 @@ public class TematicaServiceImpl implements ITematicaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoriaId)));
         return tematicaRepository.save(tematica);
     }
+
+    @Override
+    public Tematica update(Long id, Long categoriaId, Tematica datos) {
+        Tematica existente = findById(id);
+        existente.setNombre(datos.getNombre());
+        existente.setImagenReferencial(datos.getImagenReferencial());
+        existente.setCategoria(categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria", categoriaId)));
+        return tematicaRepository.save(existente);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!tematicaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Tematica", id);
+        }
+        tematicaRepository.deleteById(id);
+    }
 }

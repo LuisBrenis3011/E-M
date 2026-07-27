@@ -28,7 +28,7 @@ El perfil `dev` (activo por defecto) usa `ddl-auto: update` — crea las tablas 
 
 ```typescript
 // .env
-VITE_API_URL=http://localhost:8080/api
+//VITE_API_URL=http://localhost:8080/api
 
 // src/api/client.ts
 const API = axios.create({ baseURL: import.meta.env.VITE_API_URL });

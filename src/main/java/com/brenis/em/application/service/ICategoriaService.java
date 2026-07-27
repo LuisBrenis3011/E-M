@@ -11,4 +11,8 @@ public interface ICategoriaService {
     Categoria findById(Long id);
 
     Categoria save(Categoria categoria);
+
+    Categoria update(Long id, Categoria datos);
+
+    void deleteById(Long id);
 }
