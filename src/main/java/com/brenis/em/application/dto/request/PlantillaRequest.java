@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PlantillaRequest {
 
@@ -21,7 +23,7 @@ public class PlantillaRequest {
     @NotBlank
     private String contenidoHtml;
 
-    private String placeholders;
+    private List<String> placeholders;
 
     private Boolean esDefault = false;
 }

@@ -36,7 +36,7 @@ public class PlantillaContrato {
     @Column(name = "contenido_html", nullable = false, columnDefinition = "TEXT")
     private String contenidoHtml;
 
-    @Column(columnDefinition = "JSONB")
+    @Column(columnDefinition = "TEXT")
     private String placeholders;
 
     @Column(name = "es_default", nullable = false)

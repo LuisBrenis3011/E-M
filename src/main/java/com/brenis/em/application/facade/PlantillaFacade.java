@@ -26,7 +26,7 @@ public class PlantillaFacade {
                 .descripcion(request.getDescripcion())
                 .tipo(request.getTipo())
                 .contenidoHtml(request.getContenidoHtml())
-                .placeholders(request.getPlaceholders())
+                .placeholders(listToJsonString(request.getPlaceholders()))
                 .esDefault(request.getEsDefault())
                 .build();
 
@@ -39,11 +39,17 @@ public class PlantillaFacade {
                 .descripcion(request.getDescripcion())
                 .tipo(request.getTipo())
                 .contenidoHtml(request.getContenidoHtml())
-                .placeholders(request.getPlaceholders())
+                .placeholders(listToJsonString(request.getPlaceholders()))
                 .esDefault(request.getEsDefault())
                 .build();
 
         return plantillaMapper.toResponse(plantillaService.update(id, plantilla));
+    }
+
+    private String listToJsonString(List<String> list) {
+        if (list == null || list.isEmpty()) return null;
+        return "[" + String.join(",", list.stream()
+                .map(s -> "\"" + s + "\"").toList()) + "]";
     }
 
     public PlantillaResponse findById(Long id) {

@@ -1,0 +1,52 @@
+<html><body style='font-family:Arial,sans-serif;font-size:13px;'>
+<h3 style='text-align:center;'>CONTRATO {{PROVEEDOR_NOMBRE}}</h3>
+<p>Lima, {{FECHA_EMISION}}</p>
+<p>El presente contrato tiene como objetivo ejercer un compromiso de parte de nuestra empresa
+{{PROVEEDOR_NOMBRE}} para brindar el servicio de espectaculo de {{EVENTO_TIPO}} entre
+{{PROVEEDOR_GERENTE}} (gerente general) con {{CLIENTE_NOMBRE}} (solicitante),
+en el cual se presentara a continuacion los detalles correspondientes al evento:</p>
+
+<h4>I. DATOS DEL SOLICITANTE</h4>
+<p><strong>NOMBRE O RAZON SOCIAL:</strong> {{CLIENTE_NOMBRE}}<br/>
+<strong>DNI:</strong> {{CLIENTE_DNI}}<br/>
+<strong>TELEFONO:</strong> {{CLIENTE_TELEFONO}}<br/>
+<strong>DIRECCION:</strong> {{CLIENTE_DIRECCION}}<br/>
+<strong>REFERENCIA:</strong> {{CLIENTE_REFERENCIA}}</p>
+
+<h4>II. DETALLES DEL EVENTO</h4>
+<p><strong>TIPO DE EVENTO:</strong> {{EVENTO_TIPO}}<br/>
+<strong>TEMATICA DEL EVENTO:</strong> {{EVENTO_TEMATICA}}<br/>
+<strong>FECHA DEL EVENTO:</strong> {{EVENTO_FECHA}}<br/>
+<strong>NOMBRE Y EDAD DEL CUMPLEANERO(A):</strong> {{EVENTO_NOMBRE_CUMPLEANERO}} / {{EVENTO_EDAD_CUMPLEANERO}}<br/>
+<strong>HORA DEL EVENTO:</strong> {{EVENTO_HORA_INICIO}} a {{EVENTO_HORA_FIN}}</p>
+
+<h4>III. {{EVENTO_TIPO}}</h4>
+{{CONTRATO_DETALLE_ITEMS}}
+<p><strong>INCLUYE:</strong> Canto al cumpleanero<br/>
+<strong>INCLUYE:</strong> Juegos segun la edad<br/>
+<strong>INCLUYE:</strong> Dinamicas con el publico<br/>
+<strong>INCLUYE:</strong> Bailes / coreografias<br/>
+<strong>INCLUYE:</strong> Mini hora loca<br/>
+<strong>INCLUYE:</strong> Rompe la pinata<br/>
+<strong>INCLUYE:</strong> Cumpleanos feliz</p>
+
+<h4>OBSEQUIOS</h4>
+{{CONTRATO_OBSEQUIOS}}
+
+<p><strong>MOVILIDAD:</strong> {{CONTRATO_MOVILIDAD}}<br/>
+<strong>DURACION:</strong> {{CONTRATO_DURACION}}</p>
+
+<p><strong>RESUMEN DEL SHOW:</strong> {{CONTRATO_MONTO_TOTAL}}<br/>
+<strong>TOTAL COSTO:</strong> {{CONTRATO_MONTO_TOTAL}}<br/>
+<strong>ADELANTO:</strong> {{CONTRATO_MONTO_ADELANTO}}<br/>
+<strong>SALDO A PAGAR:</strong> {{CONTRATO_MONTO_PENDIENTE}}</p>
+
+<h4>TERMINOS Y CONDICIONES:</h4>
+<p>{{CONTRATO_TERMINOS}}</p>
+
+<br/><br/>
+<p style='text-align:left;float:left;width:45%;'>
+________________________<br/>{{PROVEEDOR_GERENTE}}<br/>GERENTE GENERAL</p>
+<p style='text-align:right;float:right;width:45%;'>
+________________________<br/>{{CLIENTE_NOMBRE}}<br/>SOLICITANTE</p>
+</body></html>

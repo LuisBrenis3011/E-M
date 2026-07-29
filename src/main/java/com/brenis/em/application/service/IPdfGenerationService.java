@@ -8,5 +8,7 @@ public interface IPdfGenerationService {
 
     ContratoDocumento generarContrato(Long contratoId, Long generadoPor);
 
+    ContratoDocumento findById(Long id);
+
     List<ContratoDocumento> findByContrato(Long contratoId);
 }

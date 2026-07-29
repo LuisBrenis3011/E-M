@@ -5,17 +5,25 @@ import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.JwtResponse;
 import com.brenis.em.application.service.IAuthService;
 import com.brenis.em.application.service.IProveedorService;
+import com.brenis.em.application.service.IPlantillaService;
 import com.brenis.em.application.service.IUsuarioService;
 import com.brenis.em.domain.enums.RolUsuario;
+import com.brenis.em.domain.enums.TipoPlantilla;
+import com.brenis.em.domain.plantilla.PlantillaContrato;
 import com.brenis.em.domain.proveedor.Proveedor;
 import com.brenis.em.domain.usuario.Usuario;
 import com.brenis.em.infrastructure.exception.BusinessException;
 import com.brenis.em.infrastructure.security.JwtProvider;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Service
 @Transactional
@@ -23,17 +31,23 @@ public class AuthServiceImpl implements IAuthService {
 
     private final IUsuarioService usuarioService;
     private final IProveedorService proveedorService;
+    private final IPlantillaService plantillaService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("classpath:templates/contrato-default.html")
+    private Resource defaultTemplate;
+
     public AuthServiceImpl(IUsuarioService usuarioService,
                            IProveedorService proveedorService,
+                           IPlantillaService plantillaService,
                            AuthenticationManager authenticationManager,
                            JwtProvider jwtProvider,
                            PasswordEncoder passwordEncoder) {
         this.usuarioService = usuarioService;
         this.proveedorService = proveedorService;
+        this.plantillaService = plantillaService;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.passwordEncoder = passwordEncoder;
@@ -68,6 +82,8 @@ public class AuthServiceImpl implements IAuthService {
                 .build();
         proveedor = proveedorService.save(proveedor);
 
+        crearPlantillaDefault(proveedor);
+
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
                 .apellido(request.getApellido())
@@ -90,5 +106,25 @@ public class AuthServiceImpl implements IAuthService {
                 usuario.getRol().name(),
                 usuario.getProveedor() != null ? usuario.getProveedor().getId() : null
         );
+    }
+
+    private void crearPlantillaDefault(Proveedor proveedor) {
+        PlantillaContrato plantilla = PlantillaContrato.builder()
+                .proveedor(proveedor)
+                .nombre("Contrato Estandar")
+                .descripcion("Plantilla default generada al registrarse")
+                .tipo(TipoPlantilla.CONTRATO)
+                .contenidoHtml(loadDefaultTemplate())
+                .esDefault(true)
+                .build();
+        plantillaService.create(proveedor.getId(), plantilla);
+    }
+
+    private String loadDefaultTemplate() {
+        try {
+            return defaultTemplate.getContentAsString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new BusinessException("No se pudo cargar la plantilla default del contrato");
+        }
     }
 }

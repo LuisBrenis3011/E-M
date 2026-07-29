@@ -88,6 +88,12 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         return documentoRepository.findByContratoIdOrderByVersionDesc(contratoId);
     }
 
+    @Override
+    public ContratoDocumento findById(Long id) {
+        return documentoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ContratoDocumento", id));
+    }
+
     private String reemplazarPlaceholders(String html, Contrato contrato) {
         Proveedor proveedor = contrato.getProveedor();
         var evento = contrato.getEvento();
@@ -107,7 +113,7 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         html = html.replace("{{CLIENTE_DIRECCION}}", nvl(cliente.getDireccion()));
         html = html.replace("{{CLIENTE_REFERENCIA}}", nvl(cliente.getReferencia()));
 
-        html = html.replace("{{EVENTO_TIPO}}", nvl(evento.getTipoEvento()));
+        html = html.replace("{{EVENTO_TIPO}}", evento.getCategoria().getNombre().toUpperCase());
         html = html.replace("{{EVENTO_TEMATICA}}", tematica != null ? tematica.getNombre() : "");
         html = html.replace("{{EVENTO_FECHA}}", formatFecha(evento.getFechaEvento().atStartOfDay()));
         html = html.replace("{{EVENTO_HORA_INICIO}}", evento.getHoraInicio().toString());
@@ -139,14 +145,15 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
 
         StringBuilder sb = new StringBuilder();
         sb.append("<table style='width:100%; border-collapse:collapse;'>");
-        sb.append("<tr><th>Item</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr>");
+        sb.append("<tr><th style='text-align:left;width:80px;'>CANTIDAD</th>")
+          .append("<th style='text-align:left;'>DESCRIPCION</th></tr>");
 
         for (DetalleContrato d : filtrados) {
             sb.append("<tr>");
-            sb.append("<td>").append(d.getInventario().getNombre()).append("</td>");
-            sb.append("<td>").append(d.getCantidad()).append("</td>");
-            sb.append("<td>").append(fmtMonto(d.getPrecioUnitario())).append("</td>");
-            sb.append("<td>").append(fmtMonto(d.getSubtotal())).append("</td>");
+            sb.append("<td style='vertical-align:top;'>")
+              .append(String.format("%02d", d.getCantidad())).append("</td>");
+            sb.append("<td style='vertical-align:top;'>")
+              .append(d.getInventario().getNombre()).append("</td>");
             sb.append("</tr>");
         }
         sb.append("</table>");
