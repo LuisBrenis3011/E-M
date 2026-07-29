@@ -144,19 +144,21 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         if (filtrados.isEmpty()) return "";
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<table style='width:100%; border-collapse:collapse;'>");
-        sb.append("<tr><th style='text-align:left;width:80px;'>CANTIDAD</th>")
-          .append("<th style='text-align:left;'>DESCRIPCION</th></tr>");
-
         for (DetalleContrato d : filtrados) {
             sb.append("<tr>");
-            sb.append("<td style='vertical-align:top;'>")
-              .append(String.format("%02d", d.getCantidad())).append("</td>");
-            sb.append("<td style='vertical-align:top;'>")
-              .append(d.getInventario().getNombre()).append("</td>");
-            sb.append("</tr>");
+            if (obsequios) {
+                sb.append("<td class=\"center-bold\">OBSEQUIO</td>");
+            } else {
+                sb.append("<td class=\"center-bold\">")
+                        .append(String.format("%02d", d.getCantidad()))
+                        .append("</td>");
+            }
+            sb.append("<td>")
+                    .append(d.getInventario().getNombre())
+                    .append("</td>");
+
+            sb.append("</tr>\n");
         }
-        sb.append("</table>");
 
         return sb.toString();
     }

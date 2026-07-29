@@ -1,52 +1,157 @@
-<html><body style='font-family:Arial,sans-serif;font-size:13px;'>
-<h3 style='text-align:center;'>CONTRATO {{PROVEEDOR_NOMBRE}}</h3>
-<p>Lima, {{FECHA_EMISION}}</p>
-<p>El presente contrato tiene como objetivo ejercer un compromiso de parte de nuestra empresa
-{{PROVEEDOR_NOMBRE}} para brindar el servicio de espectaculo de {{EVENTO_TIPO}} entre
-{{PROVEEDOR_GERENTE}} (gerente general) con {{CLIENTE_NOMBRE}} (solicitante),
-en el cual se presentara a continuacion los detalles correspondientes al evento:</p>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 4px 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .no-border, .no-border td {
+            border: none !important;
+        }
+        .title {
+            text-align: center;
+            text-decoration: underline;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .date {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .intro {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        .center-bold {
+            text-align: center;
+            font-weight: bold;
+        }
+        .terms-title {
+            color: red;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .text-red { color: red; font-weight: bold; }
+        .text-green { color: green; font-weight: bold; }
+        .text-blue { color: #2b5e8a; }
+    </style>
+</head>
+<body>
 
-<h4>I. DATOS DEL SOLICITANTE</h4>
-<p><strong>NOMBRE O RAZON SOCIAL:</strong> {{CLIENTE_NOMBRE}}<br/>
-<strong>DNI:</strong> {{CLIENTE_DNI}}<br/>
-<strong>TELEFONO:</strong> {{CLIENTE_TELEFONO}}<br/>
-<strong>DIRECCION:</strong> {{CLIENTE_DIRECCION}}<br/>
-<strong>REFERENCIA:</strong> {{CLIENTE_REFERENCIA}}</p>
+<div class="title">CONTRATO {{PROVEEDOR_NOMBRE}}</div>
+<div class="date">Lima, {{FECHA_EMISION}}</div>
 
-<h4>II. DETALLES DEL EVENTO</h4>
-<p><strong>TIPO DE EVENTO:</strong> {{EVENTO_TIPO}}<br/>
-<strong>TEMATICA DEL EVENTO:</strong> {{EVENTO_TEMATICA}}<br/>
-<strong>FECHA DEL EVENTO:</strong> {{EVENTO_FECHA}}<br/>
-<strong>NOMBRE Y EDAD DEL CUMPLEANERO(A):</strong> {{EVENTO_NOMBRE_CUMPLEANERO}} / {{EVENTO_EDAD_CUMPLEANERO}}<br/>
-<strong>HORA DEL EVENTO:</strong> {{EVENTO_HORA_INICIO}} a {{EVENTO_HORA_FIN}}</p>
+<p class="intro">
+    El presente contrato tiene como objetivo ejercer un compromiso de parte de nuestra empresa
+    <strong>{{PROVEEDOR_NOMBRE}}</strong> para brindar el servicio de espectaculo de <strong>{{EVENTO_TIPO}}</strong> entre
+    <strong>{{PROVEEDOR_GERENTE}}</strong> (gerente general) con <strong>{{CLIENTE_NOMBRE}}</strong> (solicitante),
+    en el cual se presentara a continuacion los detalles correspondientes al evento:
+</p>
 
-<h4>III. {{EVENTO_TIPO}}</h4>
-{{CONTRATO_DETALLE_ITEMS}}
-<p><strong>INCLUYE:</strong> Canto al cumpleanero<br/>
-<strong>INCLUYE:</strong> Juegos segun la edad<br/>
-<strong>INCLUYE:</strong> Dinamicas con el publico<br/>
-<strong>INCLUYE:</strong> Bailes / coreografias<br/>
-<strong>INCLUYE:</strong> Mini hora loca<br/>
-<strong>INCLUYE:</strong> Rompe la pinata<br/>
-<strong>INCLUYE:</strong> Cumpleanos feliz</p>
+<table>
+    <tr>
+        <td colspan="2" class="section-title">I. DATOS DEL SOLICITANTE</td>
+    </tr>
+    <tr>
+        <td style="width: 70%;"><strong>NOMBRE O RAZON SOCIAL:</strong> {{CLIENTE_NOMBRE}}</td>
+        <td style="width: 30%;"><strong>DNI:</strong> {{CLIENTE_DNI}}</td>
+    </tr>
+    <tr>
+        <td colspan="2"><strong>TELEFONO:</strong> {{CLIENTE_TELEFONO}}</td>
+    </tr>
+    <tr>
+        <td colspan="2"><strong>DIRECCION:</strong> {{CLIENTE_DIRECCION}}</td>
+    </tr>
+    <tr>
+        <td colspan="2"><strong>REFERENCIA:</strong> {{CLIENTE_REFERENCIA}}</td>
+    </tr>
+</table>
 
-<h4>OBSEQUIOS</h4>
-{{CONTRATO_OBSEQUIOS}}
+<table>
+    <tr>
+        <td class="section-title">II DETALLES DEL EVENTO</td>
+    </tr>
+    <tr><td><strong>TIPO DE EVENTO:</strong> {{EVENTO_TIPO}}</td></tr>
+    <tr><td><strong>TEMATICA DEL EVENTO:</strong> {{EVENTO_TEMATICA}}</td></tr>
+    <tr><td><strong>FECHA DEL EVENTO:</strong> {{EVENTO_FECHA}}</td></tr>
+    <tr><td><strong>NOMBRE Y EDAD DEL CUMPLEANERO(A):</strong> {{EVENTO_NOMBRE_CUMPLEANERO}} / {{EVENTO_EDAD_CUMPLEANERO}}</td></tr>
+    <tr><td><strong>HORA DEL EVENTO:</strong> {{EVENTO_HORA_INICIO}} a {{EVENTO_HORA_FIN}}</td></tr>
+</table>
 
-<p><strong>MOVILIDAD:</strong> {{CONTRATO_MOVILIDAD}}<br/>
-<strong>DURACION:</strong> {{CONTRATO_DURACION}}</p>
+<table>
+    <tr>
+        <td colspan="2" class="section-title">III. {{EVENTO_TIPO}}</td>
+    </tr>
+    <tr>
+        <td class="center-bold" style="width: 35%;">CANTIDAD</td>
+        <td class="center-bold" style="width: 65%;">DESCRIPCION</td>
+    </tr>
 
-<p><strong>RESUMEN DEL SHOW:</strong> {{CONTRATO_MONTO_TOTAL}}<br/>
-<strong>TOTAL COSTO:</strong> {{CONTRATO_MONTO_TOTAL}}<br/>
-<strong>ADELANTO:</strong> {{CONTRATO_MONTO_ADELANTO}}<br/>
-<strong>SALDO A PAGAR:</strong> {{CONTRATO_MONTO_PENDIENTE}}</p>
+    {{CONTRATO_DETALLE_ITEMS}}
 
-<h4>TERMINOS Y CONDICIONES:</h4>
-<p>{{CONTRATO_TERMINOS}}</p>
+    <tr><td class="center-bold">INCLUYE</td><td>Canto al cumpleanero</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Juegos segun la edad</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Dinamicas con el publico</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Bailes / coreografias</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Mini hora loca</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Rompe la pinata</td></tr>
+    <tr><td class="center-bold">INCLUYE</td><td>Cumpleanos feliz</td></tr>
 
-<br/><br/>
-<p style='text-align:left;float:left;width:45%;'>
-________________________<br/>{{PROVEEDOR_GERENTE}}<br/>GERENTE GENERAL</p>
-<p style='text-align:right;float:right;width:45%;'>
-________________________<br/>{{CLIENTE_NOMBRE}}<br/>SOLICITANTE</p>
-</body></html>
+    {{CONTRATO_OBSEQUIOS}}
+
+    <tr><td class="center-bold">MOVILIDAD</td><td>{{CONTRATO_MOVILIDAD}}</td></tr>
+    <tr><td class="center-bold">DURACION</td><td>{{CONTRATO_DURACION}}</td></tr>
+</table>
+
+<table>
+    <tr><td><strong>RESUMEN DEL SHOW:</strong> <span class="text-blue">{{CONTRATO_MONTO_TOTAL}}</span></td></tr>
+    <tr><td><strong>TOTAL COSTO:</strong> <span class="text-blue">{{CONTRATO_MONTO_TOTAL}}</span></td></tr>
+    <tr><td><span class="text-red">ADELANTO: {{CONTRATO_MONTO_ADELANTO}}</span></td></tr>
+    <tr><td><span class="text-green">SALDO A PAGAR: {{CONTRATO_MONTO_PENDIENTE}}</span></td></tr>
+</table>
+
+<div class="terms-title">TERMINOS Y CONDICIONES:</div>
+<div style="font-size: 11px;">
+    {{CONTRATO_TERMINOS}}
+</div>
+
+<br/><br/><br/>
+
+<table class="no-border" style="margin-top: 20px;">
+    <tr>
+        <td style="text-align: center; width: 50%;">
+            ________________________<br/>
+            <strong>{{PROVEEDOR_GERENTE}}</strong><br/>
+            GERENTE GENERAL
+        </td>
+        <td style="text-align: center; width: 50%;">
+            ________________________<br/>
+            <strong>{{CLIENTE_NOMBRE}}</strong><br/>
+            SOLICITANTE
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
