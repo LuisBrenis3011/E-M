@@ -7,7 +7,6 @@ import com.brenis.em.application.service.IAuthService;
 import com.brenis.em.application.service.IProveedorService;
 import com.brenis.em.application.service.IPlantillaService;
 import com.brenis.em.application.service.IUsuarioService;
-import com.brenis.em.domain.enums.RolUsuario;
 import com.brenis.em.domain.enums.TipoPlantilla;
 import com.brenis.em.domain.plantilla.PlantillaContrato;
 import com.brenis.em.domain.proveedor.Proveedor;
@@ -60,8 +59,8 @@ public class AuthServiceImpl implements IAuthService {
 
         usuarioService.updateLastAccess(request.getEmail());
 
-        String token = jwtProvider.generateToken(request.getEmail(), RolUsuario.PROVEEDOR.name());
         Usuario usuario = usuarioService.findByEmail(request.getEmail());
+        String token = jwtProvider.generateToken(usuario.getEmail(), usuario.getRol().name());
 
         return buildJwtResponse(token, usuario);
     }

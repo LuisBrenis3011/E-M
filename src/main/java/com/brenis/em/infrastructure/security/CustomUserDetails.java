@@ -1,6 +1,9 @@
 package com.brenis.em.infrastructure.security;
 
+import com.brenis.em.domain.enums.EstadoBasico;
 import com.brenis.em.domain.usuario.Usuario;
+import com.brenis.em.infrastructure.security.constant.SecurityRoles;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,11 +19,13 @@ public class CustomUserDetails implements UserDetails {
 
     private final Long id;
     private final String email;
+    @JsonIgnore
     private final String password;
     private final String nombre;
     private final String apellido;
     private final String rol;
     private final Long proveedorId;
+    private final boolean activo;
 
     public static CustomUserDetails fromUsuario(Usuario usuario) {
         return new CustomUserDetails(
@@ -30,13 +35,15 @@ public class CustomUserDetails implements UserDetails {
                 usuario.getNombre(),
                 usuario.getApellido(),
                 usuario.getRol().name(),
-                usuario.getProveedor() != null ? usuario.getProveedor().getId() : null
+                usuario.getProveedor() != null ? usuario.getProveedor().getId() : null,
+                usuario.getEstado() == EstadoBasico.ACTIVO
         );
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol));
+        return Collections.singletonList(
+                new SimpleGrantedAuthority(SecurityRoles.ROLE_PREFIX + rol));
     }
 
     @Override
@@ -66,6 +73,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return activo;
     }
 }

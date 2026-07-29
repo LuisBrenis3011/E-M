@@ -14,5 +14,7 @@ public interface IUsuarioService {
 
     void updatePassword(Long id, String newPassword);
 
+    void changePassword(String email, String oldPassword, String newPassword);
+
     void updateLastAccess(String email);
 }

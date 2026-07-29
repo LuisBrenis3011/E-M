@@ -1,13 +1,16 @@
 package com.brenis.em.presentation.controller;
 
+import com.brenis.em.application.dto.request.ChangePasswordRequest;
 import com.brenis.em.application.dto.request.LoginRequest;
 import com.brenis.em.application.dto.request.ProveedorUpdateRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.JwtResponse;
+import com.brenis.em.application.dto.response.MeResponse;
 import com.brenis.em.application.dto.response.ProveedorResponse;
 import com.brenis.em.application.facade.AuthFacade;
 import com.brenis.em.application.mapper.ProveedorMapper;
 import com.brenis.em.application.service.IProveedorService;
+import com.brenis.em.application.service.IUsuarioService;
 import com.brenis.em.domain.proveedor.Proveedor;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
 import jakarta.validation.Valid;
@@ -22,13 +25,16 @@ public class AuthController {
 
     private final AuthFacade authFacade;
     private final IProveedorService proveedorService;
+    private final IUsuarioService usuarioService;
     private final ProveedorMapper proveedorMapper;
 
     public AuthController(AuthFacade authFacade,
                           IProveedorService proveedorService,
+                          IUsuarioService usuarioService,
                           ProveedorMapper proveedorMapper) {
         this.authFacade = authFacade;
         this.proveedorService = proveedorService;
+        this.usuarioService = usuarioService;
         this.proveedorMapper = proveedorMapper;
     }
 
@@ -43,8 +49,24 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(userDetails);
+    public ResponseEntity<MeResponse> me(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(MeResponse.builder()
+                .id(userDetails.getId())
+                .email(userDetails.getEmail())
+                .nombre(userDetails.getNombre())
+                .apellido(userDetails.getApellido())
+                .rol(userDetails.getRol())
+                .proveedorId(userDetails.getProveedorId())
+                .build());
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        usuarioService.changePassword(userDetails.getEmail(),
+                request.getOldPassword(), request.getNewPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/proveedor")

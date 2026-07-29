@@ -5,6 +5,7 @@ import com.brenis.em.domain.enums.RolUsuario;
 import com.brenis.em.domain.usuario.Usuario;
 import com.brenis.em.domain.repository.ProveedorRepository;
 import com.brenis.em.domain.repository.UsuarioRepository;
+import com.brenis.em.infrastructure.exception.BusinessException;
 import com.brenis.em.infrastructure.exception.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,18 @@ public class UsuarioServiceImpl implements IUsuarioService {
     @Override
     public void updatePassword(Long id, String newPassword) {
         Usuario usuario = findById(id);
+        usuario.setContrasenaHash(passwordEncoder.encode(newPassword));
+        usuarioRepository.save(usuario);
+    }
+
+    @Override
+    public void changePassword(String email, String oldPassword, String newPassword) {
+        Usuario usuario = findByEmail(email);
+
+        if (!passwordEncoder.matches(oldPassword, usuario.getContrasenaHash())) {
+            throw new BusinessException("La contraseña actual es incorrecta");
+        }
+
         usuario.setContrasenaHash(passwordEncoder.encode(newPassword));
         usuarioRepository.save(usuario);
     }
