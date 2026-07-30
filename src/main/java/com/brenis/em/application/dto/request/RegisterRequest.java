@@ -29,21 +29,6 @@ public class RegisterRequest {
     private String telefono;
 
     @NotBlank
-    @Size(max = 150)
-    private String nombreEmpresa;
-
-    @NotBlank
     @Size(max = 20)
     private String ruc;
-
-    @NotBlank
-    @Size(max = 150)
-    private String nombreGerente;
-
-    @Size(max = 255)
-    private String direccion;
-
-    @NotBlank
-    @Size(max = 20)
-    private String telefonoEmpresa;
 }

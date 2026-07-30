@@ -3,7 +3,9 @@ package com.brenis.em.presentation.controller;
 import com.brenis.em.application.dto.request.ChangePasswordRequest;
 import com.brenis.em.application.dto.request.LoginRequest;
 import com.brenis.em.application.dto.request.ProveedorUpdateRequest;
+import com.brenis.em.application.dto.request.RegisterEmpresaRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
+import com.brenis.em.application.dto.response.EmpresaResponse;
 import com.brenis.em.application.dto.response.JwtResponse;
 import com.brenis.em.application.dto.response.MeResponse;
 import com.brenis.em.application.dto.response.ProveedorResponse;
@@ -43,13 +45,23 @@ public class AuthController {
         return ResponseEntity.ok(authFacade.login(request));
     }
 
+    @PostMapping("/register-empresa")
+    public ResponseEntity<EmpresaResponse> registerEmpresa(
+            @Valid @RequestBody RegisterEmpresaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authFacade.registerEmpresa(request));
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authFacade.register(request));
+    public ResponseEntity<JwtResponse> register(
+            @Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authFacade.register(request));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MeResponse> me(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<MeResponse> me(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(MeResponse.builder()
                 .id(userDetails.getId())
                 .email(userDetails.getEmail())

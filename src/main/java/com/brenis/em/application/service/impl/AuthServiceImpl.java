@@ -1,11 +1,13 @@
 package com.brenis.em.application.service.impl;
 
 import com.brenis.em.application.dto.request.LoginRequest;
+import com.brenis.em.application.dto.request.RegisterEmpresaRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
+import com.brenis.em.application.dto.response.EmpresaResponse;
 import com.brenis.em.application.dto.response.JwtResponse;
 import com.brenis.em.application.service.IAuthService;
-import com.brenis.em.application.service.IProveedorService;
 import com.brenis.em.application.service.IPlantillaService;
+import com.brenis.em.application.service.IProveedorService;
 import com.brenis.em.application.service.IUsuarioService;
 import com.brenis.em.domain.enums.TipoPlantilla;
 import com.brenis.em.domain.plantilla.PlantillaContrato;
@@ -66,9 +68,13 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public JwtResponse register(RegisterRequest request) {
-        if (usuarioService.existsByEmail(request.getEmail())) {
+    public EmpresaResponse registerEmpresa(RegisterEmpresaRequest request) {
+        if (usuarioService.existsByEmail(request.getAdminEmail())) {
             throw new BusinessException("El email ya esta registrado");
+        }
+
+        if (proveedorService.findByRuc(request.getRuc()).isPresent()) {
+            throw new BusinessException("Ya existe una empresa registrada con ese RUC");
         }
 
         Proveedor proveedor = Proveedor.builder()
@@ -76,12 +82,42 @@ public class AuthServiceImpl implements IAuthService {
                 .ruc(request.getRuc())
                 .nombreGerente(request.getNombreGerente())
                 .direccion(request.getDireccion())
-                .telefono(request.getTelefonoEmpresa())
-                .email(request.getEmail())
+                .telefono(request.getTelefono())
+                .email(request.getAdminEmail())
                 .build();
         proveedor = proveedorService.save(proveedor);
 
         crearPlantillaDefault(proveedor);
+
+        Usuario usuario = Usuario.builder()
+                .nombre(request.getAdminNombre())
+                .apellido(request.getAdminApellido())
+                .email(request.getAdminEmail())
+                .contrasenaHash(passwordEncoder.encode(request.getAdminPassword()))
+                .build();
+        usuario = usuarioService.saveProveedor(usuario, proveedor.getId());
+
+        String token = jwtProvider.generateToken(usuario.getEmail(), usuario.getRol().name());
+
+        return EmpresaResponse.builder()
+                .proveedorId(proveedor.getId())
+                .nombreEmpresa(proveedor.getNombreEmpresa())
+                .ruc(proveedor.getRuc())
+                .token(token)
+                .adminEmail(usuario.getEmail())
+                .build();
+    }
+
+    @Override
+    public JwtResponse register(RegisterRequest request) {
+        if (usuarioService.existsByEmail(request.getEmail())) {
+            throw new BusinessException("El email ya esta registrado");
+        }
+
+        Proveedor proveedor = proveedorService.findByRuc(request.getRuc())
+                .orElseThrow(() -> new BusinessException(
+                        "No existe una empresa con el RUC " + request.getRuc()
+                                + ". La empresa debe registrarse primero."));
 
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
