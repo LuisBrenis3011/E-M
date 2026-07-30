@@ -22,7 +22,5 @@ public class PaqueteResponse {
     private String estado;
     private Long categoriaId;
     private String categoriaNombre;
-    private Long tematicaId;
-    private String tematicaNombre;
     private List<DetallePaqueteResponse> detalles;
 }

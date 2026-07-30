@@ -44,14 +44,17 @@ public class ContratoServiceImpl implements IContratoService {
     }
 
     @Override
-    public Contrato createFromPaquete(Long eventoId, Long paqueteId, Long proveedorId,
+    public Contrato createFromPaquete(Long eventoId, Long proveedorId,
                                        BigDecimal costoMovilidad, BigDecimal montoAdelanto) {
         var evento = eventoRepository.findById(eventoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento", eventoId));
-        var paquete = paqueteRepository.findById(paqueteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Paquete", paqueteId));
         var proveedor = proveedorRepository.findById(proveedorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proveedor", proveedorId));
+
+        Paquete paquete = evento.getPaquete();
+        if (paquete == null) {
+            throw new BusinessException("El evento no tiene un paquete asignado");
+        }
 
         if (contratoRepository.findByEventoId(eventoId).isPresent()) {
             throw new BusinessException("El evento ya tiene un contrato asociado");
@@ -62,7 +65,6 @@ public class ContratoServiceImpl implements IContratoService {
 
         Contrato contrato = Contrato.builder()
                 .evento(evento)
-                .paquete(paquete)
                 .proveedor(proveedor)
                 .montoTotal(paquete.getPrecioBase())
                 .costoMovilidad(movilidad)

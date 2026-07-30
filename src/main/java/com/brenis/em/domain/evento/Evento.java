@@ -3,6 +3,7 @@ package com.brenis.em.domain.evento;
 import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.cliente.Cliente;
 import com.brenis.em.domain.enums.EstadoEvento;
+import com.brenis.em.domain.paquete.Paquete;
 import com.brenis.em.domain.tematica.Tematica;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,6 +34,10 @@ public class Evento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tematica_id")
     private Tematica tematica;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paquete_id")
+    private Paquete paquete;
 
     @Column(name = "tipo_evento", length = 100)
     private String tipoEvento;

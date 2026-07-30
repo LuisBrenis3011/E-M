@@ -18,8 +18,6 @@ public class ContratoResponse {
     private Long id;
     private Long eventoId;
     private String eventoTipo;
-    private Long paqueteId;
-    private String paqueteNombre;
     private String estado;
     private BigDecimal montoTotal;
     private BigDecimal costoMovilidad;

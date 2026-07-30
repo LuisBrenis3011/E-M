@@ -21,20 +21,17 @@ public class PaqueteServiceImpl implements IPaqueteService {
     private final DetallePaqueteRepository detallePaqueteRepository;
     private final ProveedorRepository proveedorRepository;
     private final CategoriaRepository categoriaRepository;
-    private final TematicaRepository tematicaRepository;
     private final InventarioRepository inventarioRepository;
 
     public PaqueteServiceImpl(PaqueteRepository paqueteRepository,
                               DetallePaqueteRepository detallePaqueteRepository,
                               ProveedorRepository proveedorRepository,
                               CategoriaRepository categoriaRepository,
-                              TematicaRepository tematicaRepository,
                               InventarioRepository inventarioRepository) {
         this.paqueteRepository = paqueteRepository;
         this.detallePaqueteRepository = detallePaqueteRepository;
         this.proveedorRepository = proveedorRepository;
         this.categoriaRepository = categoriaRepository;
-        this.tematicaRepository = tematicaRepository;
         this.inventarioRepository = inventarioRepository;
     }
 
@@ -46,11 +43,6 @@ public class PaqueteServiceImpl implements IPaqueteService {
         if (paquete.getCategoria() != null && paquete.getCategoria().getId() != null) {
             paquete.setCategoria(categoriaRepository.findById(paquete.getCategoria().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Categoria", paquete.getCategoria().getId())));
-        }
-
-        if (paquete.getTematica() != null && paquete.getTematica().getId() != null) {
-            paquete.setTematica(tematicaRepository.findById(paquete.getTematica().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tematica", paquete.getTematica().getId())));
         }
 
         return paqueteRepository.save(paquete);
@@ -67,13 +59,6 @@ public class PaqueteServiceImpl implements IPaqueteService {
         if (datos.getCategoria() != null && datos.getCategoria().getId() != null) {
             existente.setCategoria(categoriaRepository.findById(datos.getCategoria().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Categoria", datos.getCategoria().getId())));
-        }
-
-        if (datos.getTematica() != null && datos.getTematica().getId() != null) {
-            existente.setTematica(tematicaRepository.findById(datos.getTematica().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tematica", datos.getTematica().getId())));
-        } else {
-            existente.setTematica(null);
         }
 
         return paqueteRepository.save(existente);

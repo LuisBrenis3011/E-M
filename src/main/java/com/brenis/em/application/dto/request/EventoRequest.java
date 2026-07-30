@@ -19,6 +19,9 @@ public class EventoRequest {
 
     private Long tematicaId;
 
+    @NotNull
+    private Long paqueteId;
+
     @Size(max = 100)
     private String tipoEvento;
 

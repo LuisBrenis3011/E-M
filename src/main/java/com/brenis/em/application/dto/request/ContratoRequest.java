@@ -13,9 +13,6 @@ public class ContratoRequest {
     private Long eventoId;
 
     @NotNull
-    private Long paqueteId;
-
-    @NotNull
     @PositiveOrZero
     private BigDecimal costoMovilidad;
 

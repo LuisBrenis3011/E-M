@@ -3,7 +3,6 @@ package com.brenis.em.domain.paquete;
 import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.enums.EstadoBasico;
 import com.brenis.em.domain.proveedor.Proveedor;
-import com.brenis.em.domain.tematica.Tematica;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,10 +29,6 @@ public class Paquete {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tematica_id")
-    private Tematica tematica;
 
     @Column(nullable = false, length = 150)
     private String nombre;

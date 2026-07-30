@@ -26,7 +26,6 @@ public class ContratoFacade {
     public ContratoResponse createFromPaquete(Long proveedorId, ContratoRequest request) {
         var contrato = contratoService.createFromPaquete(
                 request.getEventoId(),
-                request.getPaqueteId(),
                 proveedorId,
                 request.getCostoMovilidad(),
                 request.getMontoAdelanto());

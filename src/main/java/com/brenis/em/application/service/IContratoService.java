@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IContratoService {
 
-    Contrato createFromPaquete(Long eventoId, Long paqueteId, Long proveedorId,
+    Contrato createFromPaquete(Long eventoId, Long proveedorId,
                                BigDecimal costoMovilidad, BigDecimal montoAdelanto);
 
     Contrato findById(Long id);

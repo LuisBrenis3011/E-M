@@ -9,7 +9,6 @@ import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.inventario.Inventario;
 import com.brenis.em.domain.paquete.DetallePaquete;
 import com.brenis.em.domain.paquete.Paquete;
-import com.brenis.em.domain.tematica.Tematica;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,10 +32,6 @@ public class PaqueteFacade {
                 .duracionBaseHoras(request.getDuracionBaseHoras())
                 .categoria(Categoria.builder().id(request.getCategoriaId()).build())
                 .build();
-
-        if (request.getTematicaId() != null) {
-            paquete.setTematica(Tematica.builder().id(request.getTematicaId()).build());
-        }
 
         paquete = paqueteService.create(proveedorId, paquete);
 
@@ -64,10 +59,6 @@ public class PaqueteFacade {
                 .duracionBaseHoras(request.getDuracionBaseHoras())
                 .categoria(Categoria.builder().id(request.getCategoriaId()).build())
                 .build();
-
-        if (request.getTematicaId() != null) {
-            paquete.setTematica(Tematica.builder().id(request.getTematicaId()).build());
-        }
 
         return paqueteMapper.toResponse(paqueteService.update(id, paquete));
     }

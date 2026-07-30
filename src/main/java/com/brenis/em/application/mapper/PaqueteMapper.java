@@ -14,8 +14,6 @@ public interface PaqueteMapper {
 
     @Mapping(target = "categoriaId", source = "categoria.id")
     @Mapping(target = "categoriaNombre", source = "categoria.nombre")
-    @Mapping(target = "tematicaId", source = "tematica.id")
-    @Mapping(target = "tematicaNombre", source = "tematica.nombre")
     @Mapping(target = "detalles", source = "detalles")
     PaqueteResponse toResponse(Paquete paquete);
 

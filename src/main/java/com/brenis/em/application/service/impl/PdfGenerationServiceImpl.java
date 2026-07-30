@@ -103,23 +103,23 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         List<DetalleContrato> detalles = detalleContratoRepository
                 .findByContratoIdOrderByOrden(contrato.getId());
 
-        html = html.replace("{{PROVEEDOR_NOMBRE}}", proveedor.getNombreEmpresa());
-        html = html.replace("{{PROVEEDOR_RUC}}", proveedor.getRuc());
-        html = html.replace("{{PROVEEDOR_GERENTE}}", proveedor.getNombreGerente());
+        html = html.replace("{{PROVEEDOR_NOMBRE}}", xml(proveedor.getNombreEmpresa()));
+        html = html.replace("{{PROVEEDOR_RUC}}", xml(proveedor.getRuc()));
+        html = html.replace("{{PROVEEDOR_GERENTE}}", xml(proveedor.getNombreGerente()));
 
-        html = html.replace("{{CLIENTE_NOMBRE}}", cliente.getNombreCompleto());
-        html = html.replace("{{CLIENTE_DNI}}", cliente.getDni());
-        html = html.replace("{{CLIENTE_TELEFONO}}", cliente.getTelefono());
-        html = html.replace("{{CLIENTE_DIRECCION}}", nvl(cliente.getDireccion()));
-        html = html.replace("{{CLIENTE_REFERENCIA}}", nvl(cliente.getReferencia()));
+        html = html.replace("{{CLIENTE_NOMBRE}}", xml(cliente.getNombreCompleto()));
+        html = html.replace("{{CLIENTE_DNI}}", xml(cliente.getDni()));
+        html = html.replace("{{CLIENTE_TELEFONO}}", xml(cliente.getTelefono()));
+        html = html.replace("{{CLIENTE_DIRECCION}}", xml(cliente.getDireccion()));
+        html = html.replace("{{CLIENTE_REFERENCIA}}", xml(cliente.getReferencia()));
 
-        html = html.replace("{{EVENTO_TIPO}}", evento.getCategoria().getNombre().toUpperCase());
-        html = html.replace("{{EVENTO_TEMATICA}}", tematica != null ? tematica.getNombre() : "");
+        html = html.replace("{{EVENTO_TIPO}}", xml(evento.getCategoria().getNombre().toUpperCase()));
+        html = html.replace("{{EVENTO_TEMATICA}}", xml(tematica != null ? tematica.getNombre() : null));
         html = html.replace("{{EVENTO_FECHA}}", formatFecha(evento.getFechaEvento().atStartOfDay()));
         html = html.replace("{{EVENTO_HORA_INICIO}}", evento.getHoraInicio().toString());
         html = html.replace("{{EVENTO_HORA_FIN}}",
                 evento.getHoraFinEstimada() != null ? evento.getHoraFinEstimada().toString() : "");
-        html = html.replace("{{EVENTO_NOMBRE_CUMPLEANERO}}", nvl(evento.getNombreCumpleanero()));
+        html = html.replace("{{EVENTO_NOMBRE_CUMPLEANERO}}", xml(evento.getNombreCumpleanero()));
         html = html.replace("{{EVENTO_EDAD_CUMPLEANERO}}",
                 evento.getEdadCumpleanero() != null ? evento.getEdadCumpleanero() + " años" : "");
 
@@ -127,10 +127,10 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         html = html.replace("{{CONTRATO_MOVILIDAD}}", fmtMonto(contrato.getCostoMovilidad()));
         html = html.replace("{{CONTRATO_MONTO_ADELANTO}}", fmtMonto(contrato.getMontoAdelanto()));
         html = html.replace("{{CONTRATO_MONTO_PENDIENTE}}", fmtMonto(contrato.getMontoPendiente()));
-        html = html.replace("{{CONTRATO_DURACION}}", nvl(contrato.getDuracion()));
+        html = html.replace("{{CONTRATO_DURACION}}", xml(contrato.getDuracion()));
         html = html.replace("{{CONTRATO_DETALLE_ITEMS}}", buildTablaItems(detalles, false));
         html = html.replace("{{CONTRATO_OBSEQUIOS}}", buildTablaItems(detalles, true));
-        html = html.replace("{{CONTRATO_TERMINOS}}", nvl(proveedor.getTerminosCondiciones()));
+        html = html.replace("{{CONTRATO_TERMINOS}}", xml(proveedor.getTerminosCondiciones()));
         html = html.replace("{{FECHA_EMISION}}", formatFecha(LocalDateTime.now()));
 
         return html;
@@ -154,7 +154,7 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
                         .append("</td>");
             }
             sb.append("<td>")
-                    .append(d.getInventario().getNombre())
+                    .append(xml(d.getInventario().getNombre()))
                     .append("</td>");
 
             sb.append("</tr>\n");
@@ -173,7 +173,13 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         return "S/." + String.format("%.2f", monto);
     }
 
-    private String nvl(String value) {
-        return value != null ? value : "";
+    private String xml(String value) {
+        if (value == null) return "";
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 }

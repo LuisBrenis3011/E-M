@@ -16,6 +16,9 @@ public interface EventoMapper {
     @Mapping(target = "categoriaNombre", source = "categoria.nombre")
     @Mapping(target = "tematicaId", source = "tematica.id")
     @Mapping(target = "tematicaNombre", source = "tematica.nombre")
+    @Mapping(target = "paqueteId", source = "paquete.id")
+    @Mapping(target = "paqueteNombre", source = "paquete.nombre")
+    @Mapping(target = "paquetePrecio", source = "paquete.precioBase")
     EventoResponse toResponse(Evento evento);
 
     List<EventoResponse> toResponseList(List<Evento> eventos);

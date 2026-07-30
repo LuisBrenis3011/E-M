@@ -21,8 +21,6 @@ public class PaqueteRequest {
     @NotNull
     private Long categoriaId;
 
-    private Long tematicaId;
-
     @NotNull
     @PositiveOrZero
     private BigDecimal precioBase;

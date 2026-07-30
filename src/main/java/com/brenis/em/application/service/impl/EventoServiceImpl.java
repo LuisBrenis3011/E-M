@@ -19,15 +19,18 @@ public class EventoServiceImpl implements IEventoService {
     private final ClienteRepository clienteRepository;
     private final CategoriaRepository categoriaRepository;
     private final TematicaRepository tematicaRepository;
+    private final PaqueteRepository paqueteRepository;
 
     public EventoServiceImpl(EventoRepository eventoRepository,
                              ClienteRepository clienteRepository,
                              CategoriaRepository categoriaRepository,
-                             TematicaRepository tematicaRepository) {
+                             TematicaRepository tematicaRepository,
+                             PaqueteRepository paqueteRepository) {
         this.eventoRepository = eventoRepository;
         this.clienteRepository = clienteRepository;
         this.categoriaRepository = categoriaRepository;
         this.tematicaRepository = tematicaRepository;
+        this.paqueteRepository = paqueteRepository;
     }
 
     @Override
@@ -41,6 +44,11 @@ public class EventoServiceImpl implements IEventoService {
         if (evento.getTematica() != null && evento.getTematica().getId() != null) {
             evento.setTematica(tematicaRepository.findById(evento.getTematica().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Tematica", evento.getTematica().getId())));
+        }
+
+        if (evento.getPaquete() != null && evento.getPaquete().getId() != null) {
+            evento.setPaquete(paqueteRepository.findById(evento.getPaquete().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Paquete", evento.getPaquete().getId())));
         }
 
         return eventoRepository.save(evento);
@@ -71,6 +79,11 @@ public class EventoServiceImpl implements IEventoService {
                     .orElseThrow(() -> new ResourceNotFoundException("Tematica", datos.getTematica().getId())));
         } else {
             existente.setTematica(null);
+        }
+
+        if (datos.getPaquete() != null && datos.getPaquete().getId() != null) {
+            existente.setPaquete(paqueteRepository.findById(datos.getPaquete().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Paquete", datos.getPaquete().getId())));
         }
 
         return eventoRepository.save(existente);

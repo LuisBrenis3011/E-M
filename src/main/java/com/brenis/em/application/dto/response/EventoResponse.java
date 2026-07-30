@@ -21,6 +21,9 @@ public class EventoResponse {
     private String categoriaNombre;
     private Long tematicaId;
     private String tematicaNombre;
+    private Long paqueteId;
+    private String paqueteNombre;
+    private java.math.BigDecimal paquetePrecio;
     private String tipoEvento;
     private String nombreCumpleanero;
     private Integer edadCumpleanero;

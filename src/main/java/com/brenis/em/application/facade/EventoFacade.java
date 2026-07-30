@@ -8,6 +8,7 @@ import com.brenis.em.domain.categoria.Categoria;
 import com.brenis.em.domain.cliente.Cliente;
 import com.brenis.em.domain.enums.EstadoEvento;
 import com.brenis.em.domain.evento.Evento;
+import com.brenis.em.domain.paquete.Paquete;
 import com.brenis.em.domain.tematica.Tematica;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,8 @@ public class EventoFacade {
             evento.setTematica(Tematica.builder().id(request.getTematicaId()).build());
         }
 
+        evento.setPaquete(Paquete.builder().id(request.getPaqueteId()).build());
+
         return eventoMapper.toResponse(eventoService.create(evento));
     }
 
@@ -68,6 +71,8 @@ public class EventoFacade {
         if (request.getTematicaId() != null) {
             evento.setTematica(Tematica.builder().id(request.getTematicaId()).build());
         }
+
+        evento.setPaquete(Paquete.builder().id(request.getPaqueteId()).build());
 
         return eventoMapper.toResponse(eventoService.update(id, evento));
     }
