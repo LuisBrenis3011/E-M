@@ -17,4 +17,6 @@ public interface IPlantillaService {
     void deactivate(Long id);
 
     void deleteById(Long id);
+
+    void reloadDefault(Long proveedorId, String nuevoHtml);
 }

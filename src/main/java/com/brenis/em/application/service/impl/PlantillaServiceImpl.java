@@ -5,6 +5,7 @@ import com.brenis.em.domain.enums.EstadoBasico;
 import com.brenis.em.domain.plantilla.PlantillaContrato;
 import com.brenis.em.domain.repository.PlantillaContratoRepository;
 import com.brenis.em.domain.repository.ProveedorRepository;
+import com.brenis.em.infrastructure.exception.BusinessException;
 import com.brenis.em.infrastructure.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,5 +88,15 @@ public class PlantillaServiceImpl implements IPlantillaService {
             throw new ResourceNotFoundException("Plantilla", id);
         }
         plantillaRepository.deleteById(id);
+    }
+
+    @Override
+    public void reloadDefault(Long proveedorId, String nuevoHtml) {
+        PlantillaContrato plantilla = plantillaRepository
+                .findByProveedorIdAndEsDefaultTrue(proveedorId)
+                .orElseThrow(() -> new BusinessException(
+                        "No hay plantilla default para este proveedor"));
+        plantilla.setContenidoHtml(nuevoHtml);
+        plantillaRepository.save(plantilla);
     }
 }
