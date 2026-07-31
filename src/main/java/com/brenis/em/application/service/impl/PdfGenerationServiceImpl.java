@@ -128,17 +128,18 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         html = html.replace("{{CONTRATO_MONTO_ADELANTO}}", fmtMonto(contrato.getMontoAdelanto()));
         html = html.replace("{{CONTRATO_MONTO_PENDIENTE}}", fmtMonto(contrato.getMontoPendiente()));
         html = html.replace("{{CONTRATO_DURACION}}", xml(contrato.getDuracion()));
-        html = html.replace("{{CONTRATO_DETALLE_ITEMS}}", buildTablaItems(detalles, false));
-        html = html.replace("{{CONTRATO_OBSEQUIOS}}", buildTablaItems(detalles, true));
+        html = html.replace("{{CONTRATO_DETALLE_ITEMS}}", buildTablaItems(detalles, "INCLUYE"));
+        html = html.replace("{{CONTRATO_OBSEQUIOS}}", buildTablaItems(detalles, "OBSEQUIO"));
+        html = html.replace("{{CONTRATO_ADICIONALES}}", buildTablaItems(detalles, "ADICIONAL"));
         html = html.replace("{{CONTRATO_TERMINOS}}", xml(proveedor.getTerminosCondiciones()));
         html = html.replace("{{FECHA_EMISION}}", formatFecha(LocalDateTime.now()));
 
         return html;
     }
 
-    private String buildTablaItems(List<DetalleContrato> detalles, boolean obsequios) {
+    private String buildTablaItems(List<DetalleContrato> detalles, String tipoDetalle) {
         List<DetalleContrato> filtrados = detalles.stream()
-                .filter(d -> d.getEsObsequio().equals(obsequios))
+                .filter(d -> d.getTipoDetalle().equals(tipoDetalle))
                 .toList();
 
         if (filtrados.isEmpty()) return "";
@@ -146,17 +147,16 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         StringBuilder sb = new StringBuilder();
         for (DetalleContrato d : filtrados) {
             sb.append("<tr>");
-            if (obsequios) {
-                sb.append("<td class=\"center-bold\">OBSEQUIO</td>");
-            } else {
-                sb.append("<td class=\"center-bold\">")
-                        .append(String.format("%02d", d.getCantidad()))
-                        .append("</td>");
+            sb.append("<td class=\"center-bold\">");
+            switch (tipoDetalle) {
+                case "OBSEQUIO" -> sb.append("OBSEQUIO");
+                case "ADICIONAL" -> sb.append("ADICIONAL");
+                default -> sb.append(String.format("%02d", d.getCantidad()));
             }
+            sb.append("</td>");
             sb.append("<td>")
                     .append(xml(d.getInventario().getNombre()))
                     .append("</td>");
-
             sb.append("</tr>\n");
         }
 
