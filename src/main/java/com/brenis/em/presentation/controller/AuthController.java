@@ -4,6 +4,7 @@ import com.brenis.em.application.dto.request.ChangePasswordRequest;
 import com.brenis.em.application.dto.request.LoginRequest;
 import com.brenis.em.application.dto.request.ProveedorUpdateRequest;
 import com.brenis.em.application.dto.request.RegisterEmpresaRequest;
+import com.brenis.em.application.dto.request.RegisterGoogleRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.EmpresaResponse;
 import com.brenis.em.application.dto.response.JwtResponse;
@@ -19,7 +20,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,6 +44,12 @@ public class AuthController {
         this.proveedorMapper = proveedorMapper;
     }
 
+    @GetMapping("/user-info")
+    public ResponseEntity<Map<String, Object>> getUserInfo(@AuthenticationPrincipal OAuth2User principal) {
+        // Devuelve todos los atributos que Google nos envía (nombre, email, foto, etc.)
+        return ResponseEntity.ok(principal.getAttributes());
+    }
+
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authFacade.login(request));
@@ -57,6 +67,13 @@ public class AuthController {
             @Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authFacade.register(request));
+    }
+
+    @PostMapping("/register-google")
+    public ResponseEntity<JwtResponse> registerGoogle(
+            @Valid @RequestBody RegisterGoogleRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authFacade.registerGoogle(request));
     }
 
     @GetMapping("/me")

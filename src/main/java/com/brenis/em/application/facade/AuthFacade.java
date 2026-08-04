@@ -2,6 +2,7 @@ package com.brenis.em.application.facade;
 
 import com.brenis.em.application.dto.request.LoginRequest;
 import com.brenis.em.application.dto.request.RegisterEmpresaRequest;
+import com.brenis.em.application.dto.request.RegisterGoogleRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.EmpresaResponse;
 import com.brenis.em.application.dto.response.JwtResponse;
@@ -23,6 +24,10 @@ public class AuthFacade {
 
     public JwtResponse register(RegisterRequest request) {
         return authService.register(request);
+    }
+
+    public JwtResponse registerGoogle(RegisterGoogleRequest request) {
+        return authService.registerGoogle(request);
     }
 
     public EmpresaResponse registerEmpresa(RegisterEmpresaRequest request) {

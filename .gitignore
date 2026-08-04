@@ -17,6 +17,11 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+### Secretos Locales ###
+application-secrets.yml
+.env
+*.env.local
+
 ### IntelliJ IDEA ###
 .idea
 *.iws

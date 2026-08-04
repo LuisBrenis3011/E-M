@@ -2,6 +2,7 @@ package com.brenis.em.application.service.impl;
 
 import com.brenis.em.application.dto.request.LoginRequest;
 import com.brenis.em.application.dto.request.RegisterEmpresaRequest;
+import com.brenis.em.application.dto.request.RegisterGoogleRequest;
 import com.brenis.em.application.dto.request.RegisterRequest;
 import com.brenis.em.application.dto.response.EmpresaResponse;
 import com.brenis.em.application.dto.response.JwtResponse;
@@ -125,6 +126,30 @@ public class AuthServiceImpl implements IAuthService {
                 .email(request.getEmail())
                 .telefono(request.getTelefono())
                 .contrasenaHash(passwordEncoder.encode(request.getPassword()))
+                .build();
+        usuario = usuarioService.saveProveedor(usuario, proveedor.getId());
+
+        String token = jwtProvider.generateToken(usuario.getEmail(), usuario.getRol().name());
+        return buildJwtResponse(token, usuario);
+    }
+
+    @Override
+    public JwtResponse registerGoogle(RegisterGoogleRequest request) {
+        if (usuarioService.existsByEmail(request.getEmail())) {
+            throw new BusinessException("El email ya esta registrado");
+        }
+
+        Proveedor proveedor = proveedorService.findByRuc(request.getRuc())
+                .orElseThrow(() -> new BusinessException(
+                        "No existe una empresa con el RUC " + request.getRuc()
+                                + ". La empresa debe registrarse primero."));
+
+        Usuario usuario = Usuario.builder()
+                .nombre(request.getNombre())
+                .apellido(request.getApellido())
+                .email(request.getEmail())
+                .telefono(request.getTelefono())
+                .contrasenaHash(passwordEncoder.encode("GOOGLE_OAUTH"))
                 .build();
         usuario = usuarioService.saveProveedor(usuario, proveedor.getId());
 
