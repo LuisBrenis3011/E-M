@@ -16,12 +16,14 @@ import com.brenis.em.application.service.IProveedorService;
 import com.brenis.em.application.service.IUsuarioService;
 import com.brenis.em.domain.proveedor.Proveedor;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.storage.FileStorageService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -33,15 +35,18 @@ public class AuthController {
     private final IProveedorService proveedorService;
     private final IUsuarioService usuarioService;
     private final ProveedorMapper proveedorMapper;
+    private final FileStorageService fileStorageService;
 
     public AuthController(AuthFacade authFacade,
                           IProveedorService proveedorService,
                           IUsuarioService usuarioService,
-                          ProveedorMapper proveedorMapper) {
+                          ProveedorMapper proveedorMapper,
+                          FileStorageService fileStorageService) {
         this.authFacade = authFacade;
         this.proveedorService = proveedorService;
         this.usuarioService = usuarioService;
         this.proveedorMapper = proveedorMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping("/user-info")
@@ -129,5 +134,20 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok(
                 proveedorMapper.toResponse(proveedorService.update(proveedorId, datos)));
+    }
+
+    @PostMapping("/proveedor/logo")
+    public ResponseEntity<Map<String, String>> uploadLogo(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
+        Long proveedorId = userDetails.getProveedorId();
+        if (proveedorId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String url = fileStorageService.storeComprobante(file);
+        Proveedor p = proveedorService.findById(proveedorId);
+        p.setLogoUrl(url);
+        proveedorService.update(proveedorId, p);
+        return ResponseEntity.ok(Map.of("logoUrl", url));
     }
 }
