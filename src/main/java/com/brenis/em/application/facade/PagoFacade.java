@@ -54,4 +54,8 @@ public class PagoFacade {
     public List<PagoResponse> findPendientes() {
         return pagoMapper.toResponseList(pagoService.findPendientes());
     }
+
+    public void deleteById(Long id) {
+        pagoService.deleteById(id);
+    }
 }

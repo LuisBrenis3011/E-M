@@ -3,7 +3,9 @@ package com.brenis.em.application.service.impl;
 import com.brenis.em.application.service.IContratoService;
 import com.brenis.em.domain.contrato.Contrato;
 import com.brenis.em.domain.contrato.DetalleContrato;
+import com.brenis.em.domain.documento.ContratoDocumento;
 import com.brenis.em.domain.enums.EstadoContrato;
+import com.brenis.em.domain.pago.Pago;
 import com.brenis.em.domain.paquete.DetallePaquete;
 import com.brenis.em.domain.paquete.Paquete;
 import com.brenis.em.domain.repository.*;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -26,6 +29,8 @@ public class ContratoServiceImpl implements IContratoService {
     private final ProveedorRepository proveedorRepository;
     private final DetallePaqueteRepository detallePaqueteRepository;
     private final InventarioRepository inventarioRepository;
+    private final PagoRepository pagoRepository;
+    private final ContratoDocumentoRepository documentoRepository;
 
     public ContratoServiceImpl(ContratoRepository contratoRepository,
                                DetalleContratoRepository detalleContratoRepository,
@@ -33,7 +38,9 @@ public class ContratoServiceImpl implements IContratoService {
                                PaqueteRepository paqueteRepository,
                                ProveedorRepository proveedorRepository,
                                DetallePaqueteRepository detallePaqueteRepository,
-                               InventarioRepository inventarioRepository) {
+                               InventarioRepository inventarioRepository,
+                               PagoRepository pagoRepository,
+                               ContratoDocumentoRepository documentoRepository) {
         this.contratoRepository = contratoRepository;
         this.detalleContratoRepository = detalleContratoRepository;
         this.eventoRepository = eventoRepository;
@@ -41,6 +48,8 @@ public class ContratoServiceImpl implements IContratoService {
         this.proveedorRepository = proveedorRepository;
         this.detallePaqueteRepository = detallePaqueteRepository;
         this.inventarioRepository = inventarioRepository;
+        this.pagoRepository = pagoRepository;
+        this.documentoRepository = documentoRepository;
     }
 
     @Override
@@ -117,6 +126,12 @@ public class ContratoServiceImpl implements IContratoService {
     }
 
     @Override
+    public List<Contrato> findAllByProveedor(Long proveedorId, LocalDate desde, LocalDate hasta) {
+        return contratoRepository.findByProveedorIdAndFechaCreacionBetween(
+                proveedorId, desde.atStartOfDay(), hasta.atTime(23, 59, 59));
+    }
+
+    @Override
     public Contrato update(Long id, Contrato datos) {
         Contrato existente = findById(id);
 
@@ -161,5 +176,17 @@ public class ContratoServiceImpl implements IContratoService {
             throw new ResourceNotFoundException("DetalleContrato", detalleId);
         }
         detalleContratoRepository.deleteById(detalleId);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!contratoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Contrato", id);
+        }
+        List<Pago> pagos = pagoRepository.findByContratoId(id);
+        pagoRepository.deleteAll(pagos);
+        List<ContratoDocumento> docs = documentoRepository.findByContratoIdOrderByVersionDesc(id);
+        documentoRepository.deleteAll(docs);
+        contratoRepository.deleteById(id);
     }
 }

@@ -1,6 +1,7 @@
 package com.brenis.em.application.service.impl;
 
 import com.brenis.em.application.service.IPagoService;
+import com.brenis.em.domain.contrato.Contrato;
 import com.brenis.em.domain.enums.EstadoPago;
 import com.brenis.em.domain.pago.Pago;
 import com.brenis.em.domain.repository.ContratoRepository;
@@ -66,8 +67,17 @@ public class PagoServiceImpl implements IPagoService {
         pago.setEstado(EstadoPago.VERIFICADO);
         pago.setVerificadoPor(verificador);
         pago.setFechaVerificacion(LocalDateTime.now());
+        pago = pagoRepository.save(pago);
 
-        return pagoRepository.save(pago);
+        recalcularMontoPendiente(pago.getContrato());
+
+        return pago;
+    }
+
+    private void recalcularMontoPendiente(Contrato contrato) {
+        var totalVerificado = pagoRepository.sumVerificadoByContrato(contrato.getId());
+        contrato.setMontoPendiente(contrato.getMontoTotal().subtract(totalVerificado));
+        contratoRepository.save(contrato);
     }
 
     @Override
@@ -99,6 +109,15 @@ public class PagoServiceImpl implements IPagoService {
     @Override
     public List<Pago> findPendientes() {
         return pagoRepository.findByEstado(EstadoPago.PENDIENTE);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Pago pago = findById(id);
+        if (pago.getUrlComprobante() != null) {
+            fileStorageService.deleteFile(pago.getUrlComprobante());
+        }
+        pagoRepository.deleteById(id);
     }
 
     private void validarArchivo(MultipartFile file) {

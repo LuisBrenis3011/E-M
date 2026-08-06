@@ -5,6 +5,7 @@ import com.brenis.em.domain.contrato.DetalleContrato;
 import com.brenis.em.domain.enums.EstadoContrato;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IContratoService {
@@ -18,6 +19,8 @@ public interface IContratoService {
 
     List<Contrato> findAllByProveedor(Long proveedorId);
 
+    List<Contrato> findAllByProveedor(Long proveedorId, LocalDate desde, LocalDate hasta);
+
     Contrato update(Long id, Contrato datos);
 
     Contrato cambiarEstado(Long id, EstadoContrato nuevoEstado);
@@ -25,4 +28,6 @@ public interface IContratoService {
     DetalleContrato addDetalle(Long contratoId, DetalleContrato detalle);
 
     void removeDetalle(Long detalleId);
+
+    void deleteById(Long id);
 }

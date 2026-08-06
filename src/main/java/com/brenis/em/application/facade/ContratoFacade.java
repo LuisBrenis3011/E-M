@@ -10,6 +10,7 @@ import com.brenis.em.domain.enums.EstadoContrato;
 import com.brenis.em.domain.inventario.Inventario;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -45,6 +46,11 @@ public class ContratoFacade {
         return contratoMapper.toResponseList(contratoService.findAllByProveedor(proveedorId));
     }
 
+    public List<ContratoResponse> findAllByProveedor(Long proveedorId, LocalDate desde, LocalDate hasta) {
+        return contratoMapper.toResponseList(
+                contratoService.findAllByProveedor(proveedorId, desde, hasta));
+    }
+
     public ContratoResponse addDetalle(Long contratoId, DetalleContratoRequest request) {
         DetalleContrato det = DetalleContrato.builder()
                 .inventario(Inventario.builder().id(request.getInventarioId()).build())
@@ -65,5 +71,9 @@ public class ContratoFacade {
 
     public ContratoResponse cambiarEstado(Long id, EstadoContrato estado) {
         return contratoMapper.toResponse(contratoService.cambiarEstado(id, estado));
+    }
+
+    public void deleteById(Long id) {
+        contratoService.deleteById(id);
     }
 }

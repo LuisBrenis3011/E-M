@@ -10,8 +10,11 @@ import com.brenis.em.infrastructure.util.PageUtils;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +50,14 @@ public class ContratoController {
 
     @GetMapping
     public ResponseEntity<Page<ContratoResponse>> findAll(
-            @AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable) {
-        return ResponseEntity.ok(PageUtils.toPage(
-                contratoFacade.findAllByProveedor(userDetails.getProveedorId()), pageable));
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            Pageable pageable) {
+        var all = desde != null && hasta != null
+                ? contratoFacade.findAllByProveedor(userDetails.getProveedorId(), desde, hasta)
+                : contratoFacade.findAllByProveedor(userDetails.getProveedorId());
+        return ResponseEntity.ok(PageUtils.toPage(all, pageable));
     }
 
     @PostMapping("/{contratoId}/detalles")
@@ -69,5 +77,11 @@ public class ContratoController {
     public ResponseEntity<ContratoResponse> cambiarEstado(@PathVariable Long id,
                                                            @RequestParam EstadoContrato estado) {
         return ResponseEntity.ok(contratoFacade.cambiarEstado(id, estado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        contratoFacade.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

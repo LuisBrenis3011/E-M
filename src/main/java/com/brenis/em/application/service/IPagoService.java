@@ -18,4 +18,6 @@ public interface IPagoService {
     List<Pago> findByContrato(Long contratoId);
 
     List<Pago> findPendientes();
+
+    void deleteById(Long id);
 }

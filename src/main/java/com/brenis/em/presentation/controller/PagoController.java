@@ -2,16 +2,22 @@ package com.brenis.em.presentation.controller;
 
 import com.brenis.em.application.dto.response.PagoResponse;
 import com.brenis.em.application.facade.PagoFacade;
+import com.brenis.em.application.service.IPagoService;
+import com.brenis.em.domain.pago.Pago;
 import com.brenis.em.infrastructure.security.CustomUserDetails;
+import com.brenis.em.infrastructure.storage.FileStorageService;
 import com.brenis.em.infrastructure.util.PageUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pagos")
@@ -19,9 +25,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class PagoController {
 
     private final PagoFacade pagoFacade;
+    private final IPagoService pagoService;
+    private final FileStorageService fileStorageService;
 
-    public PagoController(PagoFacade pagoFacade) {
+    public PagoController(PagoFacade pagoFacade,
+                          IPagoService pagoService,
+                          FileStorageService fileStorageService) {
         this.pagoFacade = pagoFacade;
+        this.pagoService = pagoService;
+        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping
@@ -75,5 +87,29 @@ public class PagoController {
     public ResponseEntity<PagoResponse> rechazar(@PathVariable Long id,
                                                   @RequestParam String motivo) {
         return ResponseEntity.ok(pagoFacade.rechazar(id, motivo));
+    }
+
+    @GetMapping("/comprobante/{id}")
+    public ResponseEntity<byte[]> verComprobante(@PathVariable Long id) {
+        Pago pago = pagoService.findById(id);
+        if (pago.getUrlComprobante() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        byte[] image = fileStorageService.readFile(pago.getUrlComprobante());
+        String nombre = pago.getNombreArchivo();
+        MediaType mediaType = MediaType.IMAGE_JPEG;
+        if (nombre != null) {
+            String lower = nombre.toLowerCase();
+            if (lower.endsWith(".png")) mediaType = MediaType.IMAGE_PNG;
+            else if (lower.endsWith(".gif")) mediaType = MediaType.IMAGE_GIF;
+            else if (lower.endsWith(".pdf")) mediaType = MediaType.APPLICATION_PDF;
+        }
+        return ResponseEntity.ok().contentType(mediaType).body(image);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        pagoFacade.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
