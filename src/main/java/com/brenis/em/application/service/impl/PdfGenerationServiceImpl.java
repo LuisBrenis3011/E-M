@@ -131,7 +131,6 @@ public class PdfGenerationServiceImpl implements IPdfGenerationService {
         html = html.replace("{{CONTRATO_DETALLE_ITEMS}}", buildTablaItems(detalles, "INCLUYE"));
         html = html.replace("{{CONTRATO_OBSEQUIOS}}", buildTablaItems(detalles, "OBSEQUIO"));
         html = html.replace("{{CONTRATO_ADICIONALES}}", buildTablaItems(detalles, "ADICIONAL"));
-        html = html.replace("{{CONTRATO_TERMINOS}}", xml(proveedor.getTerminosCondiciones()));
         html = html.replace("{{FECHA_EMISION}}", formatFecha(LocalDateTime.now()));
 
         return html;
