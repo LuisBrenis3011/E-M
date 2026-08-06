@@ -14,6 +14,8 @@ public interface ContratoMapper {
 
     @Mapping(target = "eventoId", source = "evento.id")
     @Mapping(target = "eventoTipo", source = "evento.tipoEvento")
+    @Mapping(target = "clienteNombre", source = "evento.cliente.nombreCompleto")
+    @Mapping(target = "fechaEvento", source = "evento.fechaEvento")
     @Mapping(target = "detalles", source = "detalles")
     ContratoResponse toResponse(Contrato contrato);
 

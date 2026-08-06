@@ -66,4 +66,13 @@ public class FileStorageService {
             throw new RuntimeException("Error al leer archivo: " + relativePath, e);
         }
     }
+
+    public void deleteFile(String relativePath) {
+        try {
+            Path fullPath = Paths.get(".").resolve(relativePath.replaceFirst("^/", ""));
+            Files.deleteIfExists(fullPath.toAbsolutePath().normalize());
+        } catch (IOException e) {
+            // best effort — el archivo puede no existir
+        }
+    }
 }

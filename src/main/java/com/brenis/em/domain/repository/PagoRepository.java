@@ -22,5 +22,8 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
     @Query("SELECT COALESCE(SUM(p.monto), 0) FROM Pago p WHERE p.estado = 'PENDIENTE'")
     BigDecimal sumMontoPendiente();
 
+    @Query("SELECT COALESCE(SUM(p.monto), 0) FROM Pago p WHERE p.contrato.id = :contratoId AND p.estado = 'VERIFICADO'")
+    BigDecimal sumVerificadoByContrato(@Param("contratoId") Long contratoId);
+
     List<Pago> findByContratoIdOrderByFechaPagoDesc(Long contratoId);
 }
