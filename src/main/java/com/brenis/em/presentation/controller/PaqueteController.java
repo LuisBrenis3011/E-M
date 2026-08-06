@@ -60,4 +60,10 @@ public class PaqueteController {
         paqueteFacade.deactivate(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        paqueteFacade.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

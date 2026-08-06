@@ -117,4 +117,12 @@ public class PaqueteServiceImpl implements IPaqueteService {
         paquete.setEstado(EstadoBasico.INACTIVO);
         paqueteRepository.save(paquete);
     }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!paqueteRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Paquete", id);
+        }
+        paqueteRepository.deleteById(id);
+    }
 }

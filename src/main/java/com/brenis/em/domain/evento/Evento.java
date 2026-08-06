@@ -17,7 +17,7 @@ import java.time.LocalTime;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Evento {
+public class    Evento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

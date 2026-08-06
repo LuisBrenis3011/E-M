@@ -78,4 +78,8 @@ public class PaqueteFacade {
     public void deactivate(Long id) {
         paqueteService.deactivate(id);
     }
+
+    public void deleteById(Long id) {
+        paqueteService.deleteById(id);
+    }
 }

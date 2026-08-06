@@ -22,4 +22,6 @@ public interface IPaqueteService {
     void removeDetalle(Long detalleId);
 
     void deactivate(Long id);
+
+    void deleteById(Long id);
 }
